@@ -26,8 +26,10 @@ public class SampleDataBase : MonoBehaviour {
 
     public void UpdateDB(string name, int status, int num){
         sqlDB = new SqliteDatabase("PlayerStatus.db");
+        state = status;
+        Debug.Log("state : " + status);
         query = "UPDATE example SET  name = \'" + name +
-                                "\', state = \'" + status +
+                                "\', state = \'" + state +
                                 "\', num = \'" + num + "\'";
 
         var dt = sqlDB.ExecuteQuery(query);

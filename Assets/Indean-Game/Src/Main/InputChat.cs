@@ -42,27 +42,27 @@ public class InputChat : MonoBehaviour
         MM = dt.Minute;
         SS = dt.Second;
         string[] testtext = new string[2];
-        
-        Name = "<color=" + namecolor + "><size=150%><margin=0.5em>" + PlayerName + "</size></color>";
-
-        testtext[0] = "<indent=25%>" + inputField.text + "</indent>";
-
-        testtext[1] = "<color=red><size=70%><margin=1em>" + string.Format( "{0:D2}:{1:D2}:{2:D2}", HH , MM , SS) + "</size></color>";
 
 
-        //テキストにinputFieldの内容を反映
-        text.text += "<size=150%>\n</size>" + Name  + testtext[0] + "\n" +  testtext[1];
 
         if(inputField.text.Contains("綾鷹"))
         {
-            text.text += "\n<align=center>NGワードです！</align>";
+            text.text += "\n<align=center>！NGワード！</align>";
             DBSrc.UpdateDB(PlayerName, 0 , 0);
         }
-        inputField.text = "";
 
         if (DBSrc.state == 0){
             namecolor = "red";
         }
+        Name = "<color=" + namecolor + "><size=150%><margin=0.5em>" + PlayerName + "</size></color>";
+
+        testtext[0] = "<color=" + namecolor + "><indent=25%>" + inputField.text + "</indent></color>";
+
+        testtext[1] = "<color=red><size=70%><margin=1em>" + string.Format( "{0:D2}:{1:D2}:{2:D2}", HH , MM , SS) + "</size></color>";
+
+        //テキストにinputFieldの内容を反映
+        text.text += "<size=150%>\n</size>" + Name  + testtext[0] + "\n" +  testtext[1];
         Debug.Log(DBSrc.state);
+        inputField.text = "";
     }
 }
