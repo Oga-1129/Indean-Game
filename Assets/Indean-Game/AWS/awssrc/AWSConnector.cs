@@ -27,7 +27,7 @@ public class AWSConnector
     DynamoDBContext context;
     int iddate = 01;
 
-    Pass _pass;
+    Pass _pass = new Pass();
 #endregion
 
 #region constructor
@@ -36,10 +36,9 @@ public class AWSConnector
     /// </summary>
     public AWSConnector()
     {
-        _pass = new Pass();
         // Amazon Cognito 認証情報プロバイダーの初期化
         credentials = new CognitoAWSCredentials (
-            _pass.idpool, // ID プールの ID
+           "ap-northeast-1:6f472862-912a-42cc-867d-dbd1c34e2fcc", // ID プールの ID
             COGNITO_REGION // リージョン
         );
         //S3Clientの初期化
@@ -50,6 +49,7 @@ public class AWSConnector
         
         //DynamoDBContextの初期化
         context = new DynamoDBContext(DynamoDBClient);
+        Debug.Log(_pass.idpool);
     }
 #endregion
 
@@ -150,35 +150,46 @@ public class AWSConnector
 
 
 #region DynamoDB
-    #region Create DynamoDB
+    #region  Create DynamoDB
     /// <summary>
     /// DynamoDBにデータを作成
     /// <summary>
-    /// <param name="resulttext">結果のテキスト表示用</param>
-    /// <param name="inputid">主キー</param>
-    /// <param name="inputusername">変更内容</param>
-    public IEnumerator CreateDynamoDB(TextMeshProUGUI resulttext, TMP_InputField inputid, TMP_InputField inputusername)
+    public IEnumerator CreateDynamoDB(int roomid)
     {
-        //idの設定
-        idset(inputid, inputusername);
-
+        Debug.Log("値をDynamoDBに生成");
         //PlayLogの初期化
         PlayLog mylog = new PlayLog
         {
-            id = iddate,
-            username = inputusername.text,
-            date = DateTime.Now
+            RoomID = roomid,
+            P1N = " ",
+            P2N = " ",
+            P3N = " ",
+            P4N = " ",
+            P1Q = " ",
+            P2Q = " ",
+            P3Q = " ",
+            P4Q = " ",
+            P1Pre = false,
+            P2Pre = false,
+            P3Pre = false,
+            P4Pre = false,
+            Remarks = " ",
+            OpenRoom = DateTime.Now,
+            StPlayer = " ",
+            StUpdate = false,
+            UpNum = 0,
+            PNum = 0
         };
 
         //DBに保存
         context.SaveAsync(mylog,(result)=>{
             //問題なし
             if(result.Exception == null){
-                resulttext.text += string.Format("DB saved\n");
+                Debug.Log("DB saved\n");
             }
             //問題あり
             else{
-                resulttext.text += string.Format("no saved\n");
+                Debug.Log(result.Exception);
             }
         });
         yield return 0;
@@ -189,17 +200,10 @@ public class AWSConnector
     /// <summary>
     /// DynamoDBのデータを取得
     /// <summary>
-    /// <param name="resulttext">結果のテキスト表示用</param>
-    /// <param name="inputid">主キー</param>
-    /// <param name="inputusername">変更内容</param>
-    public IEnumerator GetDynamoDB(TextMeshProUGUI resulttext , TMP_InputField inputid, TMP_InputField inputusername)
+    public IEnumerator GetDynamoDB()
     {
         //PlayLogの初期化
         PlayLog mylog = null;
-
-        //idの設定
-        idset(inputid, inputusername);
-        resulttext.text += "*** Load DB***\n";
 
         //リクエスト作成
         context.LoadAsync<PlayLog>(iddate,
@@ -212,19 +216,14 @@ public class AWSConnector
             if (result.Exception != null)
             {
                 //エラー表示
-                resulttext.text += string.Format("LoadAsync error" +result.Exception.Message + "\n");
+                Debug.Log("LoadAsync error" +result.Exception.Message + "\n");
                 Debug.LogException(result.Exception);
                 return;
             }
 
-            Debug.Log("Id = " + mylog.id);
-            Debug.Log("Name = " + mylog.username);
-            Debug.Log("Date = " + mylog.date);
-
-            //テキスト表示
-            resulttext.text += string.Format("Id   = " + mylog.id + "\n" +
-                                            "Name = " + mylog.username + "\n" + 
-                                            "Date = " + mylog.date + "\n");
+            Debug.Log("Id = " + mylog.RoomID);
+            Debug.Log("Name = " + mylog.P1N);
+            Debug.Log("Date = " + mylog.P1Q);
         }, null);
         yield return 0;
     }
@@ -232,18 +231,13 @@ public class AWSConnector
     #endregion
 
     #region Update DynamoDB
-    /// <summary>
-    /// DynamoDBのデータの更新
-    /// <summary>
-    /// <param name="resulttext">結果のテキスト表示用</param>
-    /// <param name="inputid">主キー</param>
-    /// <param name="inputusername">変更内容</param>
-    public IEnumerator UpdateDynamoDB(TextMeshProUGUI resulttext, TMP_InputField inputid, TMP_InputField inputusername)
+    // /// <summary>
+    // /// DynamoDBのデータの更新
+    // /// <summary>
+    public IEnumerator UpdateDynamoDB(string updatename, string username,string question, bool Pre, string talk, string stplayer, bool stupdate)
     {
         //PlayLogの初期化
         PlayLog mylog = null;
-        //idの設定
-        idset(inputid, inputusername);
 
         //リクエスト作成
         context.LoadAsync<PlayLog>(iddate,(result)=>
@@ -256,19 +250,39 @@ public class AWSConnector
 
                 // Update few properties.
                 //アップデート内容
-                mylog.username = inputusername.text;
-                mylog.date = DateTime.Now;
+                switch(updatename){
+                    case "P1N": mylog.P1N = username; break;
+                    case "P2N": mylog.P2N = username; break;
+                    case "P3N": mylog.P3N = username; break;
+                    case "P4N": mylog.P4N = username; break;
+
+                    case "P1Q": mylog.P1Q = question; break;
+                    case "P2Q": mylog.P2Q = question; break;
+                    case "P3Q": mylog.P3Q = question; break;
+                    case "P4Q": mylog.P4Q = question; break;
+
+                    case "P1Pre": mylog.P1Pre = Pre; break;
+                    case "P2Pre": mylog.P2Pre = Pre; break;
+                    case "P3Pre": mylog.P3Pre = Pre; break;
+                    case "P4Pre": mylog.P4Pre = Pre; break;
+
+                    case "Remarks" : mylog.Remarks = talk; break;
+                    case "StPlayer": mylog.StPlayer = stplayer; break;
+                    case "StUpdate": mylog.StUpdate = stupdate; break;
+                    case "UpNum"   : mylog.UpNum = 0;break;
+                    case "PNum"    : mylog.PNum = 0;break;
+                }
+
 
                 //DBに保存
                 context.SaveAsync<PlayLog>(mylog,(res)=>
                 {
                     //問題なし
                     if(res.Exception == null){
-                        resulttext.text += string.Format("DB updated\n");
+                        Debug.Log("DB updated\n");
                     }
                     Debug.Log(res.Exception);
                 });
-                
             }
         });
         yield return 0;
@@ -279,14 +293,9 @@ public class AWSConnector
     /// <summary>
     /// DynamoDBのデータを削除
     /// <summary>
-    /// <param name="resulttext">結果のテキスト表示用</param>
-    /// <param name="inputid">主キー</param>
-    /// <param name="inputusername">変更内容</param>
-    public IEnumerator DeleteDynamoDB(TextMeshProUGUI resulttext, TMP_InputField inputid, TMP_InputField inputusername)
+    public IEnumerator DeleteDynamoDB()
     {
         PlayLog mylog = null;
-        //idの設定
-        idset(inputid, inputusername);
 
         //消去リクエスト作成
         context.DeleteAsync<PlayLog>(iddate,(res)=>
@@ -298,28 +307,11 @@ public class AWSConnector
                 context.LoadAsync<PlayLog>(iddate,(result)=>
                 {
                     mylog = result.Result;
-                    if(mylog==null)　resulttext.text += string.Format("DB is deleted\n");
+                    if(mylog==null)　Debug.Log("DB is deleted\n");
                 });
             }
         });
         yield return 0;
-    }
-    #endregion
-
-    #region idset
-    /// <summary>
-    /// idの設定
-    /// </summary>
-    /// <param name="inputid"></param> 主キー
-    /// <param name="inputusername"></param> 変更内容
-    /// <returns></returns>
-    int idset(TMP_InputField inputid, TMP_InputField inputusername)
-    {
-        Debug.Log(inputid.text);
-        Debug.Log(inputusername.text);
-        //受け取ったstring型をint型に変換
-        Int32.TryParse(inputid.text, out iddate);
-        return iddate;
     }
     #endregion
 #endregion
