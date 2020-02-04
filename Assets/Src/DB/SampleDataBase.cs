@@ -27,7 +27,7 @@ public class SampleDataBase : MonoBehaviour {
         }
     }
 
-    public void UpdateDB(string name, bool status, int num){
+    public void UpdateDB(string name, string status, int num){
         sqlDB = new SqliteDatabase("PlayerStatus.db");
         query = "UPDATE example SET  name = \'" + name +
                                 "\', state = \'" + status +

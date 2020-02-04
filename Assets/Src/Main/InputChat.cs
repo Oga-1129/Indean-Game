@@ -23,12 +23,16 @@ public class InputChat : MonoBehaviour
     string Name;
     string PlayerName;
 
+    string namecolor = "black";
+
     void Start () {
         //Componentを扱えるようにする
         DBSrc = DB.GetComponent<SampleDataBase>();   
         inputField = inputField.GetComponent<TMP_InputField> ();
         text = text.GetComponent<TextMeshProUGUI> ();
         DBSrc.SelectDB();
+        PlayerName = DBSrc.name;
+        DBSrc.UpdateDB(PlayerName, "True", 0);
     }
 
     public void InputText(){
@@ -37,9 +41,9 @@ public class InputChat : MonoBehaviour
         MM = dt.Minute;
         SS = dt.Second;
         string[] testtext = new string[2];
-        Debug.Log(DBSrc.name);
-        PlayerName = DBSrc.name;
-        Name = "<color=red><size=150%><margin=0.5em>" + PlayerName + "</size></color>";
+        Debug.Log(DBSrc.state);
+        
+        Name = "<color=" + namecolor + "><size=150%><margin=0.5em>" + PlayerName + "</size></color>";
 
         testtext[0] = "<indent=25%>" + inputField.text + "</indent>";
 
@@ -48,6 +52,16 @@ public class InputChat : MonoBehaviour
 
         //テキストにinputFieldの内容を反映
         text.text += "<size=150%>\n</size>" + Name  + testtext[0] + "\n" +  testtext[1];
+
+        if(inputField.text.Contains("綾鷹"))
+        {
+            text.text += "\n<align=center>NGワードです！</align>";
+            DBSrc.UpdateDB(PlayerName, "False", 0);
+        }
         inputField.text = "";
+
+        if (DBSrc.state == "False"){
+            namecolor = "red";
+        }
     }
 }
