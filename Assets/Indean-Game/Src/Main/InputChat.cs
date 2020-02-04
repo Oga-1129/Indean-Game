@@ -31,7 +31,7 @@ public class InputChat : MonoBehaviour
         inputField = inputField.GetComponent<TMP_InputField> ();
         text = text.GetComponent<TextMeshProUGUI> ();
         DBSrc.SelectDB();
-        PlayerName = DBSrc.name;
+        PlayerName = DBSrc.PlayerName;
         Debug.Log(PlayerName);
         DBSrc.UpdateDB(PlayerName, 1 , 0);
     }
