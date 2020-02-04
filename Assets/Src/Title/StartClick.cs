@@ -15,7 +15,7 @@ public class StartClick : MonoBehaviour
     public void OnClick()
     {
         Debug.Log("in");
-        SceneManager.LoadScene("Main");   
+        SceneManager.LoadScene("Sign Up");   
     }
 
 }

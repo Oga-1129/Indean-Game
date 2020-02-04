@@ -5,7 +5,7 @@ public class SampleDataBase : MonoBehaviour {
 
     public SqliteDatabase sqlDB;
 
-    void Start(){
+    public void SelectDB(){
 　　　　　sqlDB = new SqliteDatabase("PlayerStatus.db");
 　　　　　string query = "SELECT * FROM example";
 　　　　　var dt = sqlDB.ExecuteQuery(query);
@@ -18,5 +18,14 @@ public class SampleDataBase : MonoBehaviour {
             Debug.Log("name:" + name.ToString());
             Debug.Log("num:" + num);
         }
+    }
+
+    public void UpdateDB(){
+
+    }
+
+    public void DeleteDB()
+    {
+        
     }
 }
