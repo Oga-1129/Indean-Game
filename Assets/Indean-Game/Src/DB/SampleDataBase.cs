@@ -9,8 +9,8 @@ public class SampleDataBase : MonoBehaviour {
     }
     public SqliteDatabase sqlDB;
     string query;
-    public string name;
-    public string state;
+    public string PlayerName;
+    public int state;
     public int num;
     public void SelectDB(){
 　　　　　sqlDB = new SqliteDatabase("PlayerStatus.db");
@@ -18,16 +18,13 @@ public class SampleDataBase : MonoBehaviour {
 　　　　　var dt = sqlDB.ExecuteQuery(query);
 
         foreach(DataRow dr in dt.Rows){
-            name = (string)dr["name"];
-            state = (string)dr["state"];
+            PlayerName = (string)dr["name"];
+            state = (int)dr["state"];
             num = (int)dr["num"];
-            Debug.Log("name:" + name.ToString());
-            Debug.Log("State:" + state);
-            Debug.Log("num:" + num);
         }
     }
 
-    public void UpdateDB(string name, string status, int num){
+    public void UpdateDB(string name, int status, int num){
         sqlDB = new SqliteDatabase("PlayerStatus.db");
         query = "UPDATE example SET  name = \'" + name +
                                 "\', state = \'" + status +

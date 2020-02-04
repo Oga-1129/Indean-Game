@@ -17,12 +17,12 @@ public class StartClick : MonoBehaviour
     // Update is called once per frame
     public void OnClick()
     {
-        if(DBSrc.name == "ゲスト"){
+        if(DBSrc.name == "ゲスト" || DBSrc.name == ""){
             Debug.Log("Sign Up");
             SceneManager.LoadScene("Sign Up"); 
         }else{
             Debug.Log("Main");
-            SceneManager.LoadScene("Main"); 
+            SceneManager.LoadScene("Session"); 
         }
     }
 

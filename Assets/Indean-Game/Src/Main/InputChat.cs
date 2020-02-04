@@ -32,7 +32,8 @@ public class InputChat : MonoBehaviour
         text = text.GetComponent<TextMeshProUGUI> ();
         DBSrc.SelectDB();
         PlayerName = DBSrc.name;
-        DBSrc.UpdateDB(PlayerName, "True", 0);
+        Debug.Log(PlayerName);
+        DBSrc.UpdateDB(PlayerName, 1 , 0);
     }
 
     public void InputText(){
@@ -41,7 +42,6 @@ public class InputChat : MonoBehaviour
         MM = dt.Minute;
         SS = dt.Second;
         string[] testtext = new string[2];
-        Debug.Log(DBSrc.state);
         
         Name = "<color=" + namecolor + "><size=150%><margin=0.5em>" + PlayerName + "</size></color>";
 
@@ -56,12 +56,13 @@ public class InputChat : MonoBehaviour
         if(inputField.text.Contains("綾鷹"))
         {
             text.text += "\n<align=center>NGワードです！</align>";
-            DBSrc.UpdateDB(PlayerName, "False", 0);
+            DBSrc.UpdateDB(PlayerName, 0 , 0);
         }
         inputField.text = "";
 
-        if (DBSrc.state == "False"){
+        if (DBSrc.state == 0){
             namecolor = "red";
         }
+        Debug.Log(DBSrc.state);
     }
 }
