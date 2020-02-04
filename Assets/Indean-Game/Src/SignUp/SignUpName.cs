@@ -22,9 +22,9 @@ public class SignUpName : MonoBehaviour
     {
         //テキストにinputFieldの内容を反映
         text.text = inputField.text;
-        if(text.text == "" || text.text == "ゲスト")
+        if(text.text == "" || text.text == "Guest")
         {
-            text.text = "ゲスト";
+            text.text = "Guest";
         }
     }
 }

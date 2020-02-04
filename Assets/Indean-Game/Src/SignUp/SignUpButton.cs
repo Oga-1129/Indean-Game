@@ -21,6 +21,6 @@ public class SignUpButton : MonoBehaviour
     {
         Debug.Log("SignUp");
         DBSrc.UpdateDB(SUNSrc.inputField.text, "True", 0);
-        SceneManager.LoadScene("Main");   
+        SceneManager.LoadScene("Session");   
     }
 }
