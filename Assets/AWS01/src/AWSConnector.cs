@@ -39,7 +39,7 @@ public class AWSConnector
         _pass = new Pass();
         // Amazon Cognito 認証情報プロバイダーの初期化
         credentials = new CognitoAWSCredentials (
-            _pass.Idpool, // ID プールの ID
+            _pass.idpool, // ID プールの ID
             COGNITO_REGION // リージョン
         );
         //S3Clientの初期化
