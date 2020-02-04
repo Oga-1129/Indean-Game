@@ -8,6 +8,7 @@ public class SignUpName : MonoBehaviour
 {
     public TMP_InputField inputField;
     public TextMeshProUGUI text;
+    public string signname;
     // Start is called before the first frame update
     void Start()
     {

@@ -8,7 +8,11 @@ using System;
 
 public class InputChat : MonoBehaviour
 {
-  //オブジェクトと結びつける
+    public GameObject DB;
+    SampleDataBase DBSrc;
+
+
+    //オブジェクトと結びつける
     public TMP_InputField inputField;
     public TextMeshProUGUI text;
 
@@ -21,8 +25,10 @@ public class InputChat : MonoBehaviour
 
     void Start () {
         //Componentを扱えるようにする
+        DBSrc = DB.GetComponent<SampleDataBase>();   
         inputField = inputField.GetComponent<TMP_InputField> ();
         text = text.GetComponent<TextMeshProUGUI> ();
+        DBSrc.SelectDB();
     }
 
     public void InputText(){
@@ -31,8 +37,8 @@ public class InputChat : MonoBehaviour
         MM = dt.Minute;
         SS = dt.Second;
         string[] testtext = new string[2];
-
-        PlayerName = "root";
+        Debug.Log(DBSrc.name);
+        PlayerName = DBSrc.name;
         Name = "<color=red><size=150%><margin=0.5em>" + PlayerName + "</size></color>";
 
         testtext[0] = "<indent=25%>" + inputField.text + "</indent>";

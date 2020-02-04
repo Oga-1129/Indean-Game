@@ -1785,7 +1785,7 @@ GameObject:
   - component: {fileID: 1513758531}
   - component: {fileID: 1513758534}
   m_Layer: 5
-  m_Name: InputArea
+  m_Name: InputChat
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1955,6 +1955,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d4079fcc4ef3b46caa22e78be38623d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  DB: {fileID: 1872560127}
   inputField: {fileID: 1513758531}
   text: {fileID: 658943150}
 --- !u!1 &1872560127
@@ -1986,6 +1987,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e1d987626c54f472d9d84183dedc8f8d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  name: 
 --- !u!4 &1872560129
 Transform:
   m_ObjectHideFlags: 0
