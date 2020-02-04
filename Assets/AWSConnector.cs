@@ -36,7 +36,7 @@ public class AWSConnector
     {
         // Amazon Cognito 認証情報プロバイダーの初期化
         credentials = new CognitoAWSCredentials (
-            "ap-northeast-1:895624f2-b625-4d01-b043-7c34f5aa5af4", // ID プールの ID
+            "", // ID プールの ID
             COGNITO_REGION // リージョン
         );
         //S3Clientの初期化
