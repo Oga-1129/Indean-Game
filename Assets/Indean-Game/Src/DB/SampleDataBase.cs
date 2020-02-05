@@ -34,9 +34,4 @@ public class SampleDataBase : MonoBehaviour {
 
         var dt = sqlDB.ExecuteQuery(query);
     }
-
-    public void DeleteDB()
-    {
-
-    }
 }

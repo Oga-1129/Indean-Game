@@ -23,6 +23,5 @@ public class CreateSession : MonoBehaviour
     {
         Int32.TryParse(inputid.text, out roomid);
         StartCoroutine(_AWS.CreateDynamoDB(roomid));
-        SceneManager.LoadScene("Waiting"); 
     }
 }

@@ -10,6 +10,7 @@ using Amazon.DynamoDBv2.DataModel;
 using Amazon.S3.Model;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class AWSConnector
 {
@@ -25,9 +26,11 @@ public class AWSConnector
     AmazonS3Client S3Client;
     AmazonDynamoDBClient DynamoDBClient;
     DynamoDBContext context;
-    int iddate = 01;
-
+    public static int iddate = 01;
+    public string[] Pname = new string[4];
     Pass _pass = new Pass();
+    Matching _matching;
+    public int membernum;
 #endregion
 
 #region constructor
@@ -49,7 +52,6 @@ public class AWSConnector
         
         //DynamoDBContextの初期化
         context = new DynamoDBContext(DynamoDBClient);
-        Debug.Log(_pass.idpool);
     }
 #endregion
 
@@ -181,11 +183,13 @@ public class AWSConnector
             PNum = 0
         };
 
+        iddate = roomid;
         //DBに保存
         context.SaveAsync(mylog,(result)=>{
             //問題なし
             if(result.Exception == null){
                 Debug.Log("DB saved\n");
+                SceneManager.LoadScene("Matching"); 
             }
             //問題あり
             else{
@@ -196,12 +200,14 @@ public class AWSConnector
     }
     #endregion
 
+
     #region Get DynamoDB
     /// <summary>
     /// DynamoDBのデータを取得
     /// <summary>
-    public IEnumerator GetDynamoDB()
+    public IEnumerator GetDynamoDB(int pnum)
     {
+        Debug.Log("GetDB");
         //PlayLogの初期化
         PlayLog mylog = null;
 
@@ -211,7 +217,6 @@ public class AWSConnector
         {
             //取ってきたデータをmylog(PlayLog)に保存
             mylog = result.Result as PlayLog;
-
             //問題あり
             if (result.Exception != null)
             {
@@ -220,11 +225,25 @@ public class AWSConnector
                 Debug.LogException(result.Exception);
                 return;
             }
+            switch(pnum){
+                case 0: Pname[pnum] = mylog.P1N;
+                    break;
 
+                case 1: Pname[pnum] = mylog.P2N;
+                    break;
+
+                case 2: Pname[pnum] = mylog.P3N;
+                    break;
+                
+                case 3: Pname[pnum] = mylog.P4N;
+                    break;
+            }
             Debug.Log("Id = " + mylog.RoomID);
-            Debug.Log("Name = " + mylog.P1N);
-            Debug.Log("Date = " + mylog.P1Q);
+            Debug.Log("name = " + mylog.P1N);
+            Debug.Log("name = " + pnum);
+            _matching.SetPName();
         }, null);
+
         yield return 0;
     }
 
@@ -234,11 +253,13 @@ public class AWSConnector
     // /// <summary>
     // /// DynamoDBのデータの更新
     // /// <summary>
-    public IEnumerator UpdateDynamoDB(string updatename, string username,string question, bool Pre, string talk, string stplayer, bool stupdate)
+    //string username,string question, bool Pre, string talk, string stplayer, bool stupdate
+
+    public IEnumerator UpdateDynamoDB(string updatename, string state, bool hoge, int num)
     {
         //PlayLogの初期化
         PlayLog mylog = null;
-
+        Debug.Log("updatestatename :" + updatename);
         //リクエスト作成
         context.LoadAsync<PlayLog>(iddate,(result)=>
         {
@@ -248,31 +269,36 @@ public class AWSConnector
                 //アップデートする対象をmylog(PlayLog)に決める
                 mylog = result.Result as PlayLog;
 
+
                 // Update few properties.
                 //アップデート内容
                 switch(updatename){
-                    case "P1N": mylog.P1N = username; break;
-                    case "P2N": mylog.P2N = username; break;
-                    case "P3N": mylog.P3N = username; break;
-                    case "P4N": mylog.P4N = username; break;
+                    case "P1N": mylog.P1N = state; break;
+                    case "P2N": mylog.P2N = state; break;
+                    case "P3N": mylog.P3N = state; break;
+                    case "P4N": mylog.P4N = state; break;
 
-                    case "P1Q": mylog.P1Q = question; break;
-                    case "P2Q": mylog.P2Q = question; break;
-                    case "P3Q": mylog.P3Q = question; break;
-                    case "P4Q": mylog.P4Q = question; break;
+                    case "P1Q": mylog.P1Q = state; break;
+                    case "P2Q": mylog.P2Q = state; break;
+                    case "P3Q": mylog.P3Q = state; break;
+                    case "P4Q": mylog.P4Q = state; break;
 
-                    case "P1Pre": mylog.P1Pre = Pre; break;
-                    case "P2Pre": mylog.P2Pre = Pre; break;
-                    case "P3Pre": mylog.P3Pre = Pre; break;
-                    case "P4Pre": mylog.P4Pre = Pre; break;
+                    case "P1Pre": mylog.P1Pre = hoge; break;
+                    case "P2Pre": mylog.P2Pre = hoge; break;
+                    case "P3Pre": mylog.P3Pre = hoge; break;
+                    case "P4Pre": mylog.P4Pre = hoge; break;
 
-                    case "Remarks" : mylog.Remarks = talk; break;
-                    case "StPlayer": mylog.StPlayer = stplayer; break;
-                    case "StUpdate": mylog.StUpdate = stupdate; break;
-                    case "UpNum"   : mylog.UpNum = 0;break;
-                    case "PNum"    : mylog.PNum = 0;break;
+                    case "Remarks" : mylog.Remarks = state; break;
+
+                    case "StPlayer": mylog.StPlayer = state; break;
+                    case "StUpdate": mylog.StUpdate = hoge; break;
+
+                    case "UpNum"   : mylog.UpNum = num; break;
                 }
-
+                Debug.Log("B:" + membernum);
+                mylog.PNum++;
+                membernum = mylog.PNum;
+                Debug.Log("A:" + membernum);
 
                 //DBに保存
                 context.SaveAsync<PlayLog>(mylog,(res)=>
@@ -280,10 +306,18 @@ public class AWSConnector
                     //問題なし
                     if(res.Exception == null){
                         Debug.Log("DB updated\n");
+                        _matching = GameObject.Find("Matching").GetComponent<Matching>();
+                        _matching.updatesqldb();
+                        _matching.GetPName();
+                    }else{
+                        Debug.Log(res.Exception);
                     }
-                    Debug.Log(res.Exception);
                 });
+
+            }else{
+                Debug.Log(result.Exception);
             }
+
         });
         yield return 0;
     }
