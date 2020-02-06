@@ -24,6 +24,7 @@ public class InputChat : MonoBehaviour
     string PlayerName;
 
     string namecolor = "black";
+    AWSConnector _AWS = new AWSConnector();
 
     void Start () {
         //Componentを扱えるようにする
@@ -34,6 +35,11 @@ public class InputChat : MonoBehaviour
         PlayerName = DBSrc.PlayerName;
         Debug.Log(PlayerName);
         DBSrc.UpdateDB(PlayerName, 1 , 0);
+    }
+
+    public void SetText()
+    {
+        _AWS.UpdateDynamoDB("Remarks", inputField.text, true, 0);
     }
 
     public void InputText(){
@@ -56,7 +62,7 @@ public class InputChat : MonoBehaviour
         }
         Name = "<color=" + namecolor + "><size=150%><margin=0.5em>" + PlayerName + "</size></color>";
 
-        testtext[0] = "<color=" + namecolor + "><indent=25%>" + inputField.text + "</indent></color>";
+        testtext[0] = "<color=" + namecolor + "><indent=25%>" + _AWS.talk + "</indent></color>";
 
         testtext[1] = "<color=red><size=70%><margin=1em>" + string.Format( "{0:D2}:{1:D2}:{2:D2}", HH , MM , SS) + "</size></color>";
 

@@ -12,18 +12,14 @@ public class StartClick : MonoBehaviour
     {
         DBSrc = DB.GetComponent<SampleDataBase>();  
         DBSrc.SelectDB();
-        Debug.Log(DBSrc.PlayerName);
     }
 
     // Update is called once per frame
     public void OnClick()
     {
-        Debug.Log(DBSrc.PlayerName);
-        if(DBSrc.PlayerName == "Guest"){
-            Debug.Log("Sign Up");
+        if(DBSrc.PlayerName == "Guest" || DBSrc.PlayerName == ""){
             SceneManager.LoadScene("Sign Up"); 
         }else{
-            Debug.Log("Session");
             SceneManager.LoadScene("Session"); 
         }
     }

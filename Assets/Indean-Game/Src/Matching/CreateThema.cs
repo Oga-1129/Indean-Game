@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class JoinSession : MonoBehaviour
+public class CreateThema: MonoBehaviour
 {
     // Start is called before the first frame update
     void Start()
@@ -14,6 +14,6 @@ public class JoinSession : MonoBehaviour
     // Update is called once per frame
     public void OnClick()
     {
-        SceneManager.LoadScene("Matching"); 
+        SceneManager.LoadScene("Thema"); 
     }
 }

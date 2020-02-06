@@ -27,10 +27,12 @@ public class AWSConnector
     AmazonDynamoDBClient DynamoDBClient;
     DynamoDBContext context;
     public static int iddate = 01;
-    public string[] Pname = new string[4];
+    public string[] Playername = new string[4];
     Pass _pass = new Pass();
     Matching _matching;
+    InputChat _inputchat;
     public int membernum;
+    public string talk;
 #endregion
 
 #region constructor
@@ -158,7 +160,6 @@ public class AWSConnector
     /// <summary>
     public IEnumerator CreateDynamoDB(int roomid)
     {
-        Debug.Log("値をDynamoDBに生成");
         //PlayLogの初期化
         PlayLog mylog = new PlayLog
         {
@@ -188,7 +189,7 @@ public class AWSConnector
         context.SaveAsync(mylog,(result)=>{
             //問題なし
             if(result.Exception == null){
-                Debug.Log("DB saved\n");
+                //Debug.Log("DB saved\n");
                 SceneManager.LoadScene("Matching"); 
             }
             //問題あり
@@ -205,18 +206,31 @@ public class AWSConnector
     /// <summary>
     /// DynamoDBのデータを取得
     /// <summary>
-    public IEnumerator GetDynamoDB(int pnum)
+    public IEnumerator GetDynamoDB()
     {
-        Debug.Log("GetDB");
         //PlayLogの初期化
         PlayLog mylog = null;
 
         //リクエスト作成
         context.LoadAsync<PlayLog>(iddate,
-                                    (AmazonDynamoDBResult<PlayLog> result) =>                       
+                    (AmazonDynamoDBResult<PlayLog> result) =>                       
         {
             //取ってきたデータをmylog(PlayLog)に保存
             mylog = result.Result as PlayLog;
+
+            //プレイヤー１の取得
+            Playername[0] = (string)mylog.P1N;
+
+            //プレイヤー2の取得
+            Playername[1] = (string)mylog.P2N;
+
+
+            //プレイヤー3の取得
+            Playername[2] = (string)mylog.P3N;
+                
+            //プレイヤー4の取得
+            Playername[3] = (string)mylog.P4N;
+
             //問題あり
             if (result.Exception != null)
             {
@@ -224,27 +238,14 @@ public class AWSConnector
                 Debug.Log("LoadAsync error" +result.Exception.Message + "\n");
                 Debug.LogException(result.Exception);
                 return;
+            }else{
+                _matching.setReName();
             }
-            switch(pnum){
-                case 0: Pname[pnum] = mylog.P1N;
-                    break;
 
-                case 1: Pname[pnum] = mylog.P2N;
-                    break;
-
-                case 2: Pname[pnum] = mylog.P3N;
-                    break;
-                
-                case 3: Pname[pnum] = mylog.P4N;
-                    break;
-            }
-            Debug.Log("Id = " + mylog.RoomID);
-            Debug.Log("name = " + mylog.P1N);
-            Debug.Log("name = " + pnum);
-            _matching.SetPName();
         }, null);
 
         yield return 0;
+
     }
 
     #endregion
@@ -257,9 +258,9 @@ public class AWSConnector
 
     public IEnumerator UpdateDynamoDB(string updatename, string state, bool hoge, int num)
     {
+        Debug.Log(updatename);
         //PlayLogの初期化
         PlayLog mylog = null;
-        Debug.Log("updatestatename :" + updatename);
         //リクエスト作成
         context.LoadAsync<PlayLog>(iddate,(result)=>
         {
@@ -268,7 +269,6 @@ public class AWSConnector
             {
                 //アップデートする対象をmylog(PlayLog)に決める
                 mylog = result.Result as PlayLog;
-
 
                 // Update few properties.
                 //アップデート内容
@@ -295,29 +295,37 @@ public class AWSConnector
 
                     case "UpNum"   : mylog.UpNum = num; break;
                 }
-                Debug.Log("B:" + membernum);
+                // Debug.Log("B:" + membernum);
                 mylog.PNum++;
                 membernum = mylog.PNum;
-                Debug.Log("A:" + membernum);
-
+                // Debug.Log("A:" + membernum);
                 //DBに保存
                 context.SaveAsync<PlayLog>(mylog,(res)=>
                 {
                     //問題なし
                     if(res.Exception == null){
                         Debug.Log("DB updated\n");
-                        _matching = GameObject.Find("Matching").GetComponent<Matching>();
-                        _matching.updatesqldb();
-                        _matching.GetPName();
+                        if(SceneManager.GetActiveScene().name == "Matching"){
+                            _matching = GameObject.Find("Matching").GetComponent<Matching>();
+                            //SQLiteのアップデート
+                            _matching.updatesqldb();
+                            //AWSに登録したユーザー名の取得
+                            _matching.GetPName();
+                            //名前表示
+                            //_matching.ReName();
+                        }else if(SceneManager.GetActiveScene().name == "Main"){
+                            _inputchat = GameObject.Find("InputChat").GetComponent<InputChat>();
+                            talk = mylog.Remarks;
+                            _inputchat.InputText();
+                        }
+                        
                     }else{
                         Debug.Log(res.Exception);
                     }
                 });
-
             }else{
                 Debug.Log(result.Exception);
             }
-
         });
         yield return 0;
     }
