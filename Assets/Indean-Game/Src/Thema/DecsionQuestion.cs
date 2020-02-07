@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
+using Amazon;
 
 public class DecsionQuestion : MonoBehaviour
 {
@@ -15,10 +16,14 @@ public class DecsionQuestion : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        UnityInitializer.AttachToGameObject(this.gameObject);
+        //AWS通信
+        AWSConfigs.HttpClient = AWSConfigs.HttpClientOption.UnityWebRequest;
+
         //SQLite操作用
         DBSrc = DB.GetComponent<SampleDataBase>(); 
+        DBSrc.SelectDB();
         PlayerNum = DBSrc.num;
-        _AWS = new AWSConnector();
         thema = thema.GetComponent<TMP_InputField>();
         text = text.GetComponent<TextMeshProUGUI> ();
     }
@@ -26,11 +31,11 @@ public class DecsionQuestion : MonoBehaviour
     // Update is called once per frame
     public void OnClick()
     {
-        _AWS.UpdateDynamoDB("P" + PlayerNum + "Q", thema.text, true, 0);
-        SceneManager.LoadScene("Matching"); 
+        Debug.Log("P" + PlayerNum + "Q");
+        StartCoroutine(_AWS.UpdateDynamoDB("P" + PlayerNum + "Q", thema.text, true, 0));
     }
 
-    void update()
+    void Update()
     {
         text.text = thema.text;
     }

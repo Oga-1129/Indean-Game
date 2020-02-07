@@ -206,8 +206,9 @@ public class AWSConnector
     /// <summary>
     /// DynamoDBのデータを取得
     /// <summary>
-    public IEnumerator GetDynamoDB()
+    public IEnumerator GetDynamoDB(int cheack)
     {
+        Debug.Log("in");
         //PlayLogの初期化
         PlayLog mylog = null;
 
@@ -238,11 +239,25 @@ public class AWSConnector
                 Debug.Log("LoadAsync error" +result.Exception.Message + "\n");
                 Debug.LogException(result.Exception);
                 return;
-            }else{
-                _matching.setReName();
+            }else{         
+                Debug.Log(cheack);       
+                if(SceneManager.GetActiveScene().name == "Matching"){
+                    _matching = GameObject.Find("Matching").GetComponent<Matching>();
+                    if(cheack == 0){
+                        _matching.Register();
+                    }else if(cheack == 1){
+                        for(int i = 0; i < 4 ; i++)
+                        {
+                            Debug.Log("Player" + i + "  :   " + Playername[i]);
+                        }
+                        //名前表示
+                        _matching.setReName();
+                    }
+                }
             }
 
         }, null);
+
 
         yield return 0;
 
@@ -258,7 +273,7 @@ public class AWSConnector
 
     public IEnumerator UpdateDynamoDB(string updatename, string state, bool hoge, int num)
     {
-        Debug.Log(updatename);
+        Debug.Log("in"); 
         //PlayLogの初期化
         PlayLog mylog = null;
         //リクエスト作成
@@ -273,10 +288,17 @@ public class AWSConnector
                 // Update few properties.
                 //アップデート内容
                 switch(updatename){
-                    case "P1N": mylog.P1N = state; break;
-                    case "P2N": mylog.P2N = state; break;
-                    case "P3N": mylog.P3N = state; break;
-                    case "P4N": mylog.P4N = state; break;
+                    case "P1N": mylog.P1N = state; 
+                                mylog.PNum++; break;
+
+                    case "P2N": mylog.P2N = state; 
+                                mylog.PNum++; break;
+
+                    case "P3N": mylog.P3N = state; 
+                                mylog.PNum++; break;
+
+                    case "P4N": mylog.P4N = state; 
+                                mylog.PNum++; break;
 
                     case "P1Q": mylog.P1Q = state; break;
                     case "P2Q": mylog.P2Q = state; break;
@@ -294,31 +316,31 @@ public class AWSConnector
                     case "StUpdate": mylog.StUpdate = hoge; break;
 
                     case "UpNum"   : mylog.UpNum = num; break;
+                    
                 }
-                // Debug.Log("B:" + membernum);
-                mylog.PNum++;
                 membernum = mylog.PNum;
-                // Debug.Log("A:" + membernum);
+
                 //DBに保存
                 context.SaveAsync<PlayLog>(mylog,(res)=>
                 {
                     //問題なし
                     if(res.Exception == null){
                         Debug.Log("DB updated\n");
-                        if(SceneManager.GetActiveScene().name == "Matching"){
+
+                        if(SceneManager.GetActiveScene().name == "Matching")
+                        {
                             _matching = GameObject.Find("Matching").GetComponent<Matching>();
                             //SQLiteのアップデート
                             _matching.updatesqldb();
                             //AWSに登録したユーザー名の取得
                             _matching.GetPName();
-                            //名前表示
-                            //_matching.ReName();
                         }else if(SceneManager.GetActiveScene().name == "Main"){
                             _inputchat = GameObject.Find("InputChat").GetComponent<InputChat>();
                             talk = mylog.Remarks;
                             _inputchat.InputText();
+                        }else if(SceneManager.GetActiveScene().name == "Thema"){
+                                SceneManager.LoadScene("Matching"); 
                         }
-                        
                     }else{
                         Debug.Log(res.Exception);
                     }
@@ -327,7 +349,7 @@ public class AWSConnector
                 Debug.Log(result.Exception);
             }
         });
-        yield return 0;
+        yield return  0;
     }
     #endregion
 

@@ -17,11 +17,13 @@ public class Matching : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        UnityInitializer.AttachToGameObject(this.gameObject);
         //AWS通信
         AWSConfigs.HttpClient = AWSConfigs.HttpClientOption.UnityWebRequest;
 
         //AWSConnectorのオブジェクト化
         _AWS = new AWSConnector();
+        _AWS.GetDynamoDB(0);
 
         //SQLite操作用
         DBSrc = DB.GetComponent<SampleDataBase>();  
@@ -31,55 +33,60 @@ public class Matching : MonoBehaviour
         Pname = DBSrc.PlayerName;
 
         //AWSのデータベースに保存されてある名前データの取得
-        Debug.Log("num:" + num + "\n");
-        StartCoroutine(_AWS.GetDynamoDB());
-        num++;
-
-        //今回登録するユーザー名
-        Debug.Log("Pname : " + Pname + "\n");
-
-        //新規ユーザーの登録
-        StartCoroutine(_AWS.UpdateDynamoDB("P"+ num + "N" , Pname , true , num));
-
+        StartCoroutine(_AWS.GetDynamoDB(0));
 
         //テキスト操作用
         text = text.GetComponent<TextMeshProUGUI> ();
     }
 
-    // Update is called once per frame
+
     public void GetPName()
     {
-        StartCoroutine(_AWS.GetDynamoDB());
+        StartCoroutine(_AWS.GetDynamoDB(1));
     }
+
 
     //取得したプレイヤー名の表示
     public void SetPName(int number)
     {
-        Debug.Log(_AWS.Playername[number]);
         text.text += "Player" + (number+1) + "    " + Pname + "\n";
     }
 
+
     //SQLiteのアップデート
-    public void updatesqldb(){
-        num = _AWS.membernum;
-        DBSrc.UpdateDB(Pname, 0 , num);
+    public void updatesqldb()
+    {
+        if(_AWS.Playername[DBSrc.num-1] != Pname){
+            num = _AWS.membernum;
+            DBSrc.UpdateDB(Pname, 0 , num);
+        }
     }
 
     //既に登録されてあるユーザーの表示
-    public void ReName()
-    {
-        StartCoroutine(_AWS.GetDynamoDB());
-    }
-
     public void setReName()
     {
         for(int i = 0; i < 4; i ++){
             Pname = _AWS.Playername[i];
-            Debug.Log("Pname :" + Pname + "\n");
-            if(Pname != ""){
-                Debug.Log("num :" + i);
+            if(Pname != null){
                 SetPName(i);
             }
+        }
+    }
+
+
+    public void Register()
+    {
+        Debug.Log("DBSrc.num :" + DBSrc.num);
+        Debug.Log("_AWS.Playername[DBSrc.num] :" + _AWS.Playername[DBSrc.num-1]);
+        Debug.Log("Pname:" + Pname);
+
+
+        if(_AWS.Playername[DBSrc.num-1] != Pname){
+            num++;
+            //新規ユーザーの登録
+            StartCoroutine(_AWS.UpdateDynamoDB("P"+ num + "N" , Pname , true , num));
+        }else{
+            setReName();
         }
     }
 }
