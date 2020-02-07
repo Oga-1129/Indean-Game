@@ -19,6 +19,7 @@ public class DecsionQuestion : MonoBehaviour
         UnityInitializer.AttachToGameObject(this.gameObject);
         //AWS通信
         AWSConfigs.HttpClient = AWSConfigs.HttpClientOption.UnityWebRequest;
+        _AWS = new AWSConnector();
 
         //SQLite操作用
         DBSrc = DB.GetComponent<SampleDataBase>(); 
