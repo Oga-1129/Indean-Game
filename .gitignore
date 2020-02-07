@@ -30,4 +30,4 @@ sysinfo.txt
 *.unitypackage
 Pass.cs
 Pass.cs.meta
-SQLUnityKit
+SQLUnityKit*
