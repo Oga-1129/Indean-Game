@@ -145,7 +145,7 @@ public class PlayLog
     }
 
     [DynamoDBProperty]
-    public bool Update{
+    public int TalkID{
         get;
         set;
     }

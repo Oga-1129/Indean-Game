@@ -26,6 +26,7 @@ public class InputChat : MonoBehaviour
     string Name;
     string PlayerName;
 
+    int savetalkid;
     string namecolor = "black";
     AWSConnector _AWS; 
 
@@ -37,10 +38,9 @@ public class InputChat : MonoBehaviour
         text = text.GetComponent<TextMeshProUGUI> ();
         DBSrc.SelectDB();
         PlayerName = DBSrc.PlayerName;
-        Debug.Log(PlayerName);
         DBSrc.UpdateDB(PlayerName, 1 , DBSrc.num);
         _AWS = new AWSConnector();
-        StartCoroutine(_AWS.GetDynamoDB(1));
+        StartCoroutine(_AWS.GetDynamoDB(0));
         startup_text.text = "準備中・・・";
         for(int i = 0; i < 4; i++)
         {
@@ -58,13 +58,13 @@ public class InputChat : MonoBehaviour
         startup_text.text = "";
         for(int i = 0 ; i < 4 ; i++)
         {
-            if(i != DBSrc.num -1){
+            if(i != DBSrc.num-1){
                 _playername_list[i].text += "\n" + _AWS.Playername[i] + "\n" +　"<size=60%>" + _AWS.PlayerThema[i] + "</size>";
             }else{
                 _playername_list[i].text += "\n" + _AWS.Playername[i] + "\n" +　"******";
             }
-            Debug.Log(_AWS.PlayerThema[i]);
         }
+        GetTalkID();
     }
 
     public void InputText(){
@@ -74,8 +74,6 @@ public class InputChat : MonoBehaviour
         SS = dt.Second;
         string[] testtext = new string[2];
         string Thema;
-
-        Debug.Log(_AWS.PlayerThema[DBSrc.num-1]);
 
         if(inputField.text.Contains(_AWS.PlayerThema[DBSrc.num-1]))
         {
@@ -99,7 +97,19 @@ public class InputChat : MonoBehaviour
 
         //テキストにinputFieldの内容を反映
         text.text += "<size=150%>\n</size>" + Name  + testtext[0] + "\n" +  testtext[1];
-        Debug.Log(DBSrc.state);
         inputField.text = "";
+    }
+
+    public void GetTalkID(){
+        StartCoroutine(_AWS.GetDynamoDB(1));
+    }
+
+    void Update()
+    {
+        if(_AWS.talkid != savetalkid)
+        {
+            savetalkid = _AWS.talkid;
+            InputText();
+        }
     }
 }

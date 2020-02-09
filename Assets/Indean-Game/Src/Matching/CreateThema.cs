@@ -14,7 +14,6 @@ public class CreateThema: MonoBehaviour
     // Update is called once per frame
     public void OnClick()
     {
-        Debug.Log("in");
         SceneManager.LoadScene("Thema"); 
     }
 }

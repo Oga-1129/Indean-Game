@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Collections;
 using UnityEngine;
 using Amazon;
@@ -36,8 +35,8 @@ public class AWSConnector
     public string talk;
     public int roomID;
     public string talkname;
-
-    public bool cheackup;
+    
+    public int talkid;
 #endregion
 
 #region constructor
@@ -157,35 +156,6 @@ public class AWSConnector
     #endregion
 #endregion
 
-    public void PlayerGetDynamoDB()
-    {
-        //PlayLogの初期化
-        PlayLog mylog = null;        
-
-        //リクエスト作成
-        context.LoadAsync<PlayLog>(iddate,
-                    (AmazonDynamoDBResult<PlayLog> result) =>                       
-        {
-            //取ってきたデータをmylog(PlayLog)に保存
-            mylog = result.Result as PlayLog;
-            
-
-            //プレイヤー１の名前の取得
-            Playername[0] = (string)mylog.P1N;
-
-            //プレイヤー2の名前の取得
-            Playername[1] = (string)mylog.P2N;
-
-
-            //プレイヤー3の名前の取得
-            Playername[2] = (string)mylog.P3N;
-                
-            //プレイヤー4の名前の取得
-            Playername[3] = (string)mylog.P4N;
-        },null);
-    }
-
-
 
 #region DynamoDB
     #region  Create DynamoDB
@@ -211,12 +181,12 @@ public class AWSConnector
             P3Pre = false,
             P4Pre = false,
             Remarks = " ",
-            OpenRoom = DateTime.Now,
+            OpenRoom = System.DateTime.Now,
             StPlayer = " ",
             StUpdate = false,
             UpNum = 0,
             PNum = 0,
-            Update = false
+            TalkID = 0
         };
 
         iddate = roomid;
@@ -235,6 +205,9 @@ public class AWSConnector
         yield return 0;
     }
     #endregion
+
+
+
 
     #region Get DynamoDB
     /// <summary>
@@ -276,13 +249,19 @@ public class AWSConnector
             PlayerThema[0] = (string)mylog.P1Q;
 
             //プレイヤー2のお題の取得
-            PlayerThema[1] = (string)mylog.P1Q;
+            PlayerThema[1] = (string)mylog.P2Q;
 
             //プレイヤー3のお題の取得
-            PlayerThema[2] = (string)mylog.P1Q;
+            PlayerThema[2] = (string)mylog.P3Q;
 
             //プレイヤー4のお題の取得
-            PlayerThema[3] = (string)mylog.P1Q;
+            PlayerThema[3] = (string)mylog.P4Q;
+
+            //トークID取得
+            talkid = mylog.TalkID;
+
+            //話している人
+            talkname = mylog.StPlayer;
 
 
             //問題あり
@@ -292,23 +271,15 @@ public class AWSConnector
                 Debug.Log("LoadAsync error" +result.Exception.Message + "\n");
                 Debug.LogException(result.Exception);
                 return;
-            }else{         
-                Debug.Log(cheack);       
+            }else{              
                 if(SceneManager.GetActiveScene().name == "Matching"){
                     _matching = GameObject.Find("Matching").GetComponent<Matching>();
                     if(cheack == 0){
                         _matching.Register();
                     }else if(cheack == 1){
-                        for(int i = 0; i < 4 ; i++)
-                        {
-                            Debug.Log("Player" + i + "  :   " + Playername[i]);
-                        }
                         //名前表示
                         _matching.setReName();
                     }
-                }else if(SceneManager.GetActiveScene().name == "Main"){
-                    _inputchat = GameObject.Find("InputChat").GetComponent<InputChat>();
-                    _inputchat.startup();
                 }
             }
 
@@ -316,11 +287,19 @@ public class AWSConnector
 
 
         yield return new WaitForSeconds(3);
-        if(SceneManager.GetActiveScene().name == "Matching"){
+        if(SceneManager.GetActiveScene().name == "Matching")
+        {
             _matching = GameObject.Find("Matching").GetComponent<Matching>();
             _matching.GetPName();
+        }else if(SceneManager.GetActiveScene().name == "Main")
+        {
+            _inputchat = GameObject.Find("InputChat").GetComponent<InputChat>();
+            if(cheack == 0){
+                _inputchat.startup();
+            }else if(cheack == 1){
+                _inputchat.GetTalkID();
+            }
         }
-
     }
 
     #endregion
@@ -333,7 +312,6 @@ public class AWSConnector
 
     public IEnumerator UpdateDynamoDB(string updatename, string state, bool hoge, int num, string talkname)
     {
-        Debug.Log("in"); 
         //PlayLogの初期化
         PlayLog mylog = null;
         //リクエスト作成
@@ -371,6 +349,7 @@ public class AWSConnector
                     case "P4Pre": mylog.P4Pre = hoge; break;
 
                     case "Remarks" : mylog.Remarks = state; 
+                                    mylog.TalkID = Random.Range(0, 999 + 1);
                                     mylog.StPlayer = talkname; break;
 
                     case "StUpdate": mylog.StUpdate = hoge; break;
@@ -385,8 +364,7 @@ public class AWSConnector
                 {
                     //問題なし
                     if(res.Exception == null){
-                        Debug.Log("DB updated\n");
-
+                        //Debug.Log("DB updated\n");
                         if(SceneManager.GetActiveScene().name == "Matching")
                         {
                             _matching = GameObject.Find("Matching").GetComponent<Matching>();
@@ -395,15 +373,11 @@ public class AWSConnector
                             //AWSに登録したユーザー名の取得
                             _matching.GetPName();
                         }else if(SceneManager.GetActiveScene().name == "Main"){
-                            _inputchat = GameObject.Find("InputChat").GetComponent<InputChat>();
                             talkname = mylog.StPlayer;
                             talk = mylog.Remarks;
-                            _inputchat.InputText();
                         }else if(SceneManager.GetActiveScene().name == "Thema"){
-                                SceneManager.LoadScene("Matching"); 
+                            SceneManager.LoadScene("Matching"); 
                         }
-                    }else{
-                        Debug.Log(res.Exception);
                     }
                 });
             }else{

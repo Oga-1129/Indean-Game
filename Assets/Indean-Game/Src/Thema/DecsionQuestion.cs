@@ -34,7 +34,6 @@ public class DecsionQuestion : MonoBehaviour
     // Update is called once per frame
     public void OnClick()
     {
-        Debug.Log("P" + PlayerNum + "Q");
         updatetext.text = "テーマの登録中・・・";
         StartCoroutine(_AWS.UpdateDynamoDB("P" + PlayerNum + "Q", thema.text, true, 0, ""));
     }

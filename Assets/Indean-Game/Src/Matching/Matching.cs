@@ -86,11 +86,6 @@ public class Matching : MonoBehaviour
 
     public void Register()
     {
-        Debug.Log("DBSrc.num :" + DBSrc.num);
-        Debug.Log("_AWS.Playername[DBSrc.num] :" + _AWS.Playername[DBSrc.num-1]);
-        Debug.Log("Pname:" + Pname);
-
-
         if(_AWS.Playername[DBSrc.num-1] != Pname){
             num++;
             //新規ユーザーの登録
