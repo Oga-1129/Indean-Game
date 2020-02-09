@@ -143,4 +143,10 @@ public class PlayLog
         get;
         set;
     }
+
+    [DynamoDBProperty]
+    public bool Update{
+        get;
+        set;
+    }
 }

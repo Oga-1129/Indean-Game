@@ -11,7 +11,9 @@ public class Matching : MonoBehaviour
     AWSConnector _AWS;
     int num;
 
+    bool update;
     public TextMeshProUGUI text;
+    public TextMeshProUGUI[] playertext = new TextMeshProUGUI[4];
     string Pname;
 
     // Start is called before the first frame update
@@ -38,12 +40,16 @@ public class Matching : MonoBehaviour
         //テキスト操作用
         text = text.GetComponent<TextMeshProUGUI> ();
         text.text = "<size=60%>データ登録中・・・</size>";
+        for(int i = 0; i< 4; i++)
+        {
+            playertext[i] = playertext[i].GetComponent<TextMeshProUGUI>();
+        }
     }
 
 
     public void GetPName()
     {
-        text.text = "<size=60%>データ取得中・・・</size>";
+        //text.text = "<size=60%>データ取得中・・・</size>";
         StartCoroutine(_AWS.GetDynamoDB(1));
     }
 
@@ -51,7 +57,7 @@ public class Matching : MonoBehaviour
     //取得したプレイヤー名の表示
     public void SetPName(int number)
     {
-        text.text += "Player" + (number+1) + "    " + Pname + "\n";
+        playertext[number].text = "Player" + (number+1) + "    " + Pname + "\n";
     }
 
 
@@ -91,6 +97,14 @@ public class Matching : MonoBehaviour
             StartCoroutine(_AWS.UpdateDynamoDB("P"+ num + "N" , Pname , true , num, ""));
         }else{
             setReName();
+        }
+    }
+
+    void PlayerUpdate()
+    {
+        for(int i = 0 ; i < 4 ; i++)
+        {
+            SetPName(i);
         }
     }
 }

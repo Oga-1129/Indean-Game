@@ -36,6 +36,8 @@ public class AWSConnector
     public string talk;
     public int roomID;
     public string talkname;
+
+    public bool cheackup;
 #endregion
 
 #region constructor
@@ -155,6 +157,35 @@ public class AWSConnector
     #endregion
 #endregion
 
+    public void PlayerGetDynamoDB()
+    {
+        //PlayLogの初期化
+        PlayLog mylog = null;        
+
+        //リクエスト作成
+        context.LoadAsync<PlayLog>(iddate,
+                    (AmazonDynamoDBResult<PlayLog> result) =>                       
+        {
+            //取ってきたデータをmylog(PlayLog)に保存
+            mylog = result.Result as PlayLog;
+            
+
+            //プレイヤー１の名前の取得
+            Playername[0] = (string)mylog.P1N;
+
+            //プレイヤー2の名前の取得
+            Playername[1] = (string)mylog.P2N;
+
+
+            //プレイヤー3の名前の取得
+            Playername[2] = (string)mylog.P3N;
+                
+            //プレイヤー4の名前の取得
+            Playername[3] = (string)mylog.P4N;
+        },null);
+    }
+
+
 
 #region DynamoDB
     #region  Create DynamoDB
@@ -184,7 +215,8 @@ public class AWSConnector
             StPlayer = " ",
             StUpdate = false,
             UpNum = 0,
-            PNum = 0
+            PNum = 0,
+            Update = false
         };
 
         iddate = roomid;
@@ -204,14 +236,12 @@ public class AWSConnector
     }
     #endregion
 
-
     #region Get DynamoDB
     /// <summary>
     /// DynamoDBのデータを取得
     /// <summary>
     public IEnumerator GetDynamoDB(int cheack)
     {
-        Debug.Log("GetDynamoDB\n");
         //PlayLogの初期化
         PlayLog mylog = null;
 
@@ -246,13 +276,13 @@ public class AWSConnector
             PlayerThema[0] = (string)mylog.P1Q;
 
             //プレイヤー2のお題の取得
-            PlayerThema[0] = (string)mylog.P1Q;
+            PlayerThema[1] = (string)mylog.P1Q;
 
             //プレイヤー3のお題の取得
-            PlayerThema[0] = (string)mylog.P1Q;
+            PlayerThema[2] = (string)mylog.P1Q;
 
             //プレイヤー4のお題の取得
-            PlayerThema[0] = (string)mylog.P1Q;
+            PlayerThema[3] = (string)mylog.P1Q;
 
 
             //問題あり
@@ -285,7 +315,11 @@ public class AWSConnector
         }, null);
 
 
-        yield return 0;
+        yield return new WaitForSeconds(3);
+        if(SceneManager.GetActiveScene().name == "Matching"){
+            _matching = GameObject.Find("Matching").GetComponent<Matching>();
+            _matching.GetPName();
+        }
 
     }
 
@@ -323,7 +357,7 @@ public class AWSConnector
                     case "P3N": mylog.P3N = state; 
                                 mylog.PNum++; break;
 
-                    case "P4N": mylog.P4N = state; 
+                    case "P4N": mylog.P4N = state;
                                 mylog.PNum++; break;
 
                     case "P1Q": mylog.P1Q = state; break;
