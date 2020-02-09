@@ -37,11 +37,13 @@ public class Matching : MonoBehaviour
 
         //テキスト操作用
         text = text.GetComponent<TextMeshProUGUI> ();
+        text.text = "<size=60%>データ登録中・・・</size>";
     }
 
 
     public void GetPName()
     {
+        text.text = "<size=60%>データ取得中・・・</size>";
         StartCoroutine(_AWS.GetDynamoDB(1));
     }
 
@@ -58,6 +60,7 @@ public class Matching : MonoBehaviour
     {
         if(_AWS.Playername[DBSrc.num-1] != Pname){
             num = _AWS.membernum;
+            text.text = "<size=60%>プレイヤーのデータ更新中・・・</size>";
             DBSrc.UpdateDB(Pname, 0 , num);
         }
     }
@@ -65,6 +68,7 @@ public class Matching : MonoBehaviour
     //既に登録されてあるユーザーの表示
     public void setReName()
     {
+        text.text = "";
         for(int i = 0; i < 4; i ++){
             Pname = _AWS.Playername[i];
             if(Pname != null){
@@ -84,7 +88,7 @@ public class Matching : MonoBehaviour
         if(_AWS.Playername[DBSrc.num-1] != Pname){
             num++;
             //新規ユーザーの登録
-            StartCoroutine(_AWS.UpdateDynamoDB("P"+ num + "N" , Pname , true , num));
+            StartCoroutine(_AWS.UpdateDynamoDB("P"+ num + "N" , Pname , true , num, ""));
         }else{
             setReName();
         }

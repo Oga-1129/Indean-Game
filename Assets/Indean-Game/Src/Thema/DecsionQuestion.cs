@@ -13,6 +13,7 @@ public class DecsionQuestion : MonoBehaviour
     int PlayerNum;
     public TMP_InputField thema;
     public TextMeshProUGUI text;
+    public TextMeshProUGUI updatetext;
     // Start is called before the first frame update
     void Start()
     {
@@ -27,13 +28,15 @@ public class DecsionQuestion : MonoBehaviour
         PlayerNum = DBSrc.num;
         thema = thema.GetComponent<TMP_InputField>();
         text = text.GetComponent<TextMeshProUGUI> ();
+        updatetext = updatetext.GetComponent<TextMeshProUGUI>();
     }
 
     // Update is called once per frame
     public void OnClick()
     {
         Debug.Log("P" + PlayerNum + "Q");
-        StartCoroutine(_AWS.UpdateDynamoDB("P" + PlayerNum + "Q", thema.text, true, 0));
+        updatetext.text = "テーマの登録中・・・";
+        StartCoroutine(_AWS.UpdateDynamoDB("P" + PlayerNum + "Q", thema.text, true, 0, ""));
     }
 
     void Update()

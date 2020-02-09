@@ -28,11 +28,14 @@ public class AWSConnector
     DynamoDBContext context;
     public static int iddate = 01;
     public string[] Playername = new string[4];
+    public string[] PlayerThema = new string[4];
     Pass _pass = new Pass();
     Matching _matching;
     InputChat _inputchat;
     public int membernum;
     public string talk;
+    public int roomID;
+    public string talkname;
 #endregion
 
 #region constructor
@@ -208,9 +211,15 @@ public class AWSConnector
     /// <summary>
     public IEnumerator GetDynamoDB(int cheack)
     {
-        Debug.Log("in");
+        Debug.Log("GetDynamoDB\n");
         //PlayLogの初期化
         PlayLog mylog = null;
+
+
+        //検索
+        string query = "SELECT Indean-GameDB WHERE RoomID = " + 0;
+
+        
 
         //リクエスト作成
         context.LoadAsync<PlayLog>(iddate,
@@ -218,19 +227,33 @@ public class AWSConnector
         {
             //取ってきたデータをmylog(PlayLog)に保存
             mylog = result.Result as PlayLog;
+            
 
-            //プレイヤー１の取得
+            //プレイヤー１の名前の取得
             Playername[0] = (string)mylog.P1N;
 
-            //プレイヤー2の取得
+            //プレイヤー2の名前の取得
             Playername[1] = (string)mylog.P2N;
 
 
-            //プレイヤー3の取得
+            //プレイヤー3の名前の取得
             Playername[2] = (string)mylog.P3N;
                 
-            //プレイヤー4の取得
+            //プレイヤー4の名前の取得
             Playername[3] = (string)mylog.P4N;
+
+            //プレイヤー1のお題の取得
+            PlayerThema[0] = (string)mylog.P1Q;
+
+            //プレイヤー2のお題の取得
+            PlayerThema[0] = (string)mylog.P1Q;
+
+            //プレイヤー3のお題の取得
+            PlayerThema[0] = (string)mylog.P1Q;
+
+            //プレイヤー4のお題の取得
+            PlayerThema[0] = (string)mylog.P1Q;
+
 
             //問題あり
             if (result.Exception != null)
@@ -253,6 +276,9 @@ public class AWSConnector
                         //名前表示
                         _matching.setReName();
                     }
+                }else if(SceneManager.GetActiveScene().name == "Main"){
+                    _inputchat = GameObject.Find("InputChat").GetComponent<InputChat>();
+                    _inputchat.startup();
                 }
             }
 
@@ -271,7 +297,7 @@ public class AWSConnector
     // /// <summary>
     //string username,string question, bool Pre, string talk, string stplayer, bool stupdate
 
-    public IEnumerator UpdateDynamoDB(string updatename, string state, bool hoge, int num)
+    public IEnumerator UpdateDynamoDB(string updatename, string state, bool hoge, int num, string talkname)
     {
         Debug.Log("in"); 
         //PlayLogの初期化
@@ -310,9 +336,9 @@ public class AWSConnector
                     case "P3Pre": mylog.P3Pre = hoge; break;
                     case "P4Pre": mylog.P4Pre = hoge; break;
 
-                    case "Remarks" : mylog.Remarks = state; break;
+                    case "Remarks" : mylog.Remarks = state; 
+                                    mylog.StPlayer = talkname; break;
 
-                    case "StPlayer": mylog.StPlayer = state; break;
                     case "StUpdate": mylog.StUpdate = hoge; break;
 
                     case "UpNum"   : mylog.UpNum = num; break;
@@ -336,6 +362,7 @@ public class AWSConnector
                             _matching.GetPName();
                         }else if(SceneManager.GetActiveScene().name == "Main"){
                             _inputchat = GameObject.Find("InputChat").GetComponent<InputChat>();
+                            talkname = mylog.StPlayer;
                             talk = mylog.Remarks;
                             _inputchat.InputText();
                         }else if(SceneManager.GetActiveScene().name == "Thema"){
