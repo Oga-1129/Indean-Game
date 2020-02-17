@@ -10,7 +10,7 @@ public class SampleDataBase : MonoBehaviour {
     public SqliteDatabase sqlDB;
     string query;
     public string PlayerName;
-    public int state;
+    public string state;
     public int num;
     public void SelectDB(){
 　　　　　sqlDB = new SqliteDatabase("PlayerStatus.db");
@@ -19,12 +19,12 @@ public class SampleDataBase : MonoBehaviour {
 
         foreach(DataRow dr in dt.Rows){
             PlayerName = (string)dr["name"];
-            state = (int)dr["state"];
+            state = (string)dr["state"];
             num = (int)dr["num"];
         }
     }
 
-    public void UpdateDB(string name, int status, int num){
+    public void UpdateDB(string name, string status, int num){
         sqlDB = new SqliteDatabase("PlayerStatus.db");
         state = status;
         query = "UPDATE example SET  name = \'" + name +

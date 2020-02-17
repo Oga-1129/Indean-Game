@@ -39,6 +39,9 @@ public class AWSConnector
     public string talkname;
     
     public int StatementID;
+
+    public string Game_State;
+
 #endregion
 
 #region constructor
@@ -182,11 +185,20 @@ public class AWSConnector
             P2Pre = "false",
             P3Pre = "false",
             P4Pre = "false",
+            P1St = "false",
+            P2St = "false",
+            P3St = "false",
+            P4St = "false"
+        };
+        GameLog gmlog = new GameLog
+        {
+            RoomID = roomid,
             Remarks = " ",
             OpenRoom = System.DateTime.Now,
             StPlayer = " ",
             PNum = 0,
-            StatementID = 0
+            StatementID = 0,
+            GameState = "false"
         };
 
         iddate = roomid;
@@ -194,91 +206,137 @@ public class AWSConnector
         context.SaveAsync(mylog,(result)=>{
             //問題なし
             if(result.Exception == null){
-                //Debug.Log("DB saved\n");
-                SceneManager.LoadScene("Matching"); 
             }
             //問題あり
             else{
                 Debug.Log(result.Exception);
             }
         });
-        yield return 0;
+
+        context.SaveAsync(gmlog,(result)=>{
+            //問題なし
+            if(result.Exception == null){
+            }
+            //問題あり
+            else{
+                Debug.Log(result.Exception);
+            }
+        });
+        yield return new WaitForSeconds(2);
+        SceneManager.LoadScene("Matching"); 
     }
     #endregion
 
 
 
 
-    #region Get DynamoDB
+    #region Get DynamoDB Player
     /// <summary>
     /// DynamoDBのデータを取得
     /// <summary>
-    public IEnumerator GetDynamoDB(int cheack)
+    public IEnumerator GetDynamoDBPlayer(int cheack)
     {
         //PlayLogの初期化
-        PlayLog mylog = null;
+        PlayLog Plog = null;
+        
+        //リクエスト作成
+        context.LoadAsync<PlayLog>(iddate,
+                    (AmazonDynamoDBResult<PlayLog> result) =>                       
+        {
+            //取ってきたデータをmylog(PlayLog)に保存
+            Plog = result.Result as PlayLog;
+            
+
+            //プレイヤー１の名前の取得
+            Playername[0] = (string)Plog.P1N;
+
+            //プレイヤー2の名前の取得
+            Playername[1] = (string)Plog.P2N;
+
+
+            //プレイヤー3の名前の取得
+            Playername[2] = (string)Plog.P3N;
+                
+            //プレイヤー4の名前の取得
+            Playername[3] = (string)Plog.P4N;
+
+            //プレイヤー1のお題の取得
+            PlayerThema[0] = (string)Plog.P4Q;
+
+            //プレイヤー2のお題の取得
+            PlayerThema[1] = (string)Plog.P1Q;
+
+           //プレイヤー3のお題の取得
+            PlayerThema[2] = (string)Plog.P2Q;
+
+            //プレイヤー4のお題の取得
+            PlayerThema[3] = (string)Plog.P3Q;
+
+                        //プレイヤー1のお題の取得
+            myThema[0] = (string)Plog.P1Q;
+
+            //プレイヤー2のお題の取得
+            myThema[1] = (string)Plog.P2Q;
+
+           //プレイヤー3のお題の取得
+            myThema[2] = (string)Plog.P3Q;
+
+            //プレイヤー4のお題の取得
+            myThema[3] = (string)Plog.P4Q;
+
+            PlayerPre[0] = (string)Plog.P1Pre;
+            PlayerPre[1] = (string)Plog.P2Pre;
+            PlayerPre[2] = (string)Plog.P3Pre;
+            PlayerPre[3] = (string)Plog.P4Pre;
+        },null);
+        if(SceneManager.GetActiveScene().name == "Matching")
+        {
+            yield return 0;
+            _matching = GameObject.Find("Matching").GetComponent<Matching>();
+            if(cheack == 0){
+                _matching.Register();
+            }else if(cheack == 1){
+                //名前表示
+                _matching.setReName();
+            }
+            _matching.GetPName();
+        }
+    }
+    #endregion
+        // else if(SceneManager.GetActiveScene().name == "Main")
+        // {
+        //     yield return 0;
+        //     _inputchat = GameObject.Find("InputChat").GetComponent<InputChat>();
+        //     if(cheack == 0){
+        //         _inputchat.startup();
+        //     }else if(cheack == 1){
+        //         _inputchat.GetStatementID();
+        //     }
+        // }
+
+
+
+    #region Get DynamoDB State
+    public IEnumerator GetDynamoDBState(int cheack)
+    {
+        //GameLogの初期化
+        GameLog gamelog =null;
 
 
         //検索
         string query = "SELECT Indean-GameDB WHERE RoomID = " + 0;
 
         
-
-        //リクエスト作成
-        context.LoadAsync<PlayLog>(iddate,
-                    (AmazonDynamoDBResult<PlayLog> result) =>                       
+        context.LoadAsync<GameLog>(iddate,
+                    (AmazonDynamoDBResult<GameLog> result) =>                       
         {
-            //取ってきたデータをmylog(PlayLog)に保存
-            mylog = result.Result as PlayLog;
-            
-
-            //プレイヤー１の名前の取得
-            Playername[0] = (string)mylog.P1N;
-
-            //プレイヤー2の名前の取得
-            Playername[1] = (string)mylog.P2N;
-
-
-            //プレイヤー3の名前の取得
-            Playername[2] = (string)mylog.P3N;
-                
-            //プレイヤー4の名前の取得
-            Playername[3] = (string)mylog.P4N;
-
+            gamelog = result.Result as GameLog;
             //トークID取得
-            StatementID = mylog.StatementID;
+            StatementID = gamelog.StatementID;
 
             //話している人
-            talkname = mylog.StPlayer;
-
-            //プレイヤー1のお題の取得
-            PlayerThema[0] = (string)mylog.P4Q;
-
-            //プレイヤー2のお題の取得
-            PlayerThema[1] = (string)mylog.P1Q;
-
-           //プレイヤー3のお題の取得
-            PlayerThema[2] = (string)mylog.P2Q;
-
-            //プレイヤー4のお題の取得
-            PlayerThema[3] = (string)mylog.P3Q;
-
-                        //プレイヤー1のお題の取得
-            myThema[0] = (string)mylog.P1Q;
-
-            //プレイヤー2のお題の取得
-            myThema[1] = (string)mylog.P2Q;
-
-           //プレイヤー3のお題の取得
-            myThema[2] = (string)mylog.P3Q;
-
-            //プレイヤー4のお題の取得
-            myThema[3] = (string)mylog.P4Q;
-
-            PlayerPre[0] = (string)mylog.P1Pre;
-            PlayerPre[1] = (string)mylog.P2Pre;
-            PlayerPre[2] = (string)mylog.P3Pre;
-            PlayerPre[3] = (string)mylog.P4Pre;
+            talkname = gamelog.StPlayer;
+            Game_State = (string)gamelog.GameState;
 
 
             //問題あり
@@ -301,12 +359,9 @@ public class AWSConnector
             }
 
         }, null);
-
-
-
         if(SceneManager.GetActiveScene().name == "Matching")
         {
-            yield return new WaitForSeconds(5);
+            yield return new WaitForSeconds(2);
             _matching = GameObject.Find("Matching").GetComponent<Matching>();
             _matching.GetPName();
         }else if(SceneManager.GetActiveScene().name == "Main")
@@ -320,19 +375,28 @@ public class AWSConnector
             }
         }
     }
-
     #endregion
 
-    #region Update DynamoDB
+
+
+
+
+
+
+
+
+
+
+    #region Update DynamoDB Player
     // /// <summary>
     // /// DynamoDBのデータの更新
     // /// <summary>
-    //string username,string question, bool Pre, string talk, string stplayer, bool stupdate
 
-    public IEnumerator UpdateDynamoDB(string updatename, string state, int num, string talkname, bool flag)
+    public IEnumerator UpdatePlayer(string updatename, string state, bool flag)
     {
-        //PlayLogの初期化
-        PlayLog mylog = null;
+        Debug.Log(iddate);
+        PlayLog Plog = null;
+        Debug.Log(updatename);
         //リクエスト作成
         context.LoadAsync<PlayLog>(iddate,(result)=>
         {
@@ -340,72 +404,130 @@ public class AWSConnector
             if(result.Exception == null )
             {
                 //アップデートする対象をmylog(PlayLog)に決める
-                mylog = result.Result as PlayLog;
-
+                Plog = result.Result as PlayLog;
+                
                 // Update few properties.
                 //アップデート内容
-                switch(updatename){
-                    case "P1N": mylog.P1N = state; 
-                                mylog.PNum++; break;
-
-                    case "P2N": mylog.P2N = state; 
-                                mylog.PNum++; break;
-
-                    case "P3N": mylog.P3N = state; 
-                                mylog.PNum++; break;
-
-                    case "P4N": mylog.P4N = state;
-                                mylog.PNum++; break;
-
-                    case "P1Q": mylog.P1Q = state; break;
-                    case "P2Q": mylog.P2Q = state; break;
-                    case "P3Q": mylog.P3Q = state; break;
-                    case "P4Q": mylog.P4Q = state; break;
-
-                    case "P1Pre": mylog.P1Pre = state; break;
-                    case "P2Pre": mylog.P2Pre = state; break;
-                    case "P3Pre": mylog.P3Pre = state; break;
-                    case "P4Pre": mylog.P4Pre = state; break;
-
-                    case "Remarks" : mylog.Remarks = state; 
-                                    mylog.StatementID = Random.Range(0, 999 + 1);
-                                    mylog.StPlayer = talkname; break;                    
-                }
-                membernum = mylog.PNum;
-
-                //DBに保存
-                context.SaveAsync<PlayLog>(mylog,(res)=>
+                switch(updatename)
                 {
-                    //問題なし
-                    if(res.Exception == null){
-                        //Debug.Log("DB updated\n");
-                        if(SceneManager.GetActiveScene().name == "Matching")
-                        {
-                            _matching = GameObject.Find("Matching").GetComponent<Matching>();
-                            if(flag){
-                                //SQLiteのアップデート
-                                _matching.updatesqldb();
-                            }
-                            //AWSに登録したユーザー名の取得
-                            _matching.GetPName();
-                            PlayerPre[0] = (string)mylog.P1Pre;
-                            PlayerPre[1] = (string)mylog.P2Pre;
-                            PlayerPre[2] = (string)mylog.P3Pre;
-                            PlayerPre[3] = (string)mylog.P4Pre;
-                        }else if(SceneManager.GetActiveScene().name == "Main"){
-                            talkname = mylog.StPlayer;
-                            talk = mylog.Remarks;
-                        }else if(SceneManager.GetActiveScene().name == "Theme"){
-                            SceneManager.LoadScene("Matching"); 
-                        }
-                    }
-                });
-            }else{
-                Debug.Log(result.Exception);
+                    case "P1N": Plog.P1N = state; break;
+                    case "P2N": Plog.P2N = state; break;
+                    case "P3N": Plog.P3N = state; break;
+                    case "P4N": Plog.P4N = state; break;
+
+                    case "P1Q": Plog.P1Q = state; break;
+                    case "P2Q": Plog.P2Q = state; break;
+                    case "P3Q": Plog.P3Q = state; break;
+                    case "P4Q": Plog.P4Q = state; break;
+
+                    case "P1Pre": Plog.P1Pre = state; break;
+                    case "P2Pre": Plog.P2Pre = state; break;
+                    case "P3Pre": Plog.P3Pre = state; break;
+                    case "P4Pre": Plog.P4Pre = state; break;                  
+                }
             }
         });
 
-        yield return 0;                   
+
+        context.SaveAsync<PlayLog>(Plog,(res)=>
+        {
+            //問題なし
+            if(res.Exception == null)
+            {
+                Debug.Log("DB updated\n");
+                if(SceneManager.GetActiveScene().name == "Matching")
+                {
+                    _matching = GameObject.Find("Matching").GetComponent<Matching>();
+                    PlayerPre[0] = (string)Plog.P1Pre;
+                    PlayerPre[1] = (string)Plog.P2Pre;
+                    PlayerPre[2] = (string)Plog.P3Pre;
+                    PlayerPre[3] = (string)Plog.P4Pre;
+                    if(flag)
+                    {
+                        //SQLiteのアップデート
+                        _matching.updatesqldb();
+                    }
+                    //AWSに登録したユーザー名の取得
+                    _matching.GetPName();
+                }else if(SceneManager.GetActiveScene().name == "Theme"){
+                    SceneManager.LoadScene("Matching"); 
+                }
+            }
+        });
+        yield return 0;
+    }
+    #endregion
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    #region Update DynamoDB State
+    // /// <summary>
+    // /// DynamoDBのデータの更新
+    // /// <summary>
+    //string username,string question, bool Pre, string talk, string stplayer, bool stupdate
+
+    public IEnumerator UpdateState(string updatename, string state, string talkname, bool flag)
+    {
+        GameLog Glog = null;
+        //リクエスト作成
+        context.LoadAsync<GameLog>(iddate,(result)=>
+        {
+            //問題なし
+            if(result.Exception == null )
+            {
+                //アップデートする対象をmylog(PlayLog)に決める
+                Glog = result.Result as GameLog;
+
+                // Update few properties.
+                //アップデート内容
+                switch(updatename)
+                {
+                    case "P1N": 
+
+                    case "P2N": 
+
+                    case "P3N": 
+
+                    case "P4N": Glog.PNum++; break;
+
+                    case "Remarks" : Glog.Remarks = state; 
+                                    Glog.StatementID = Random.Range(0, 999 + 1);
+                                    Glog.StPlayer = talkname; break;
+
+                    case "GameState" : Glog.GameState = state; break;                    
+                }
+            membernum = Glog.PNum;
+            }
+        },null);
+        context.SaveAsync<GameLog>(Glog,(res)=>
+        {
+            //問題なし
+            if(res.Exception == null)
+            {
+                if(SceneManager.GetActiveScene().name == "Main"){
+                    talkname = Glog.StPlayer;
+                    talk = Glog.Remarks;
+                }else if(SceneManager.GetActiveScene().name == "Theme"){
+                    SceneManager.LoadScene("Matching"); 
+                }
+            }
+        }); 
+        yield return 0; 
     }
     #endregion
 
@@ -434,5 +556,5 @@ public class AWSConnector
         yield return 0;
     }
     #endregion
-#endregion
 }
+#endregion

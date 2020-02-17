@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Amazon;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class Matching : MonoBehaviour
 {
@@ -11,8 +12,11 @@ public class Matching : MonoBehaviour
     AWSConnector _AWS;
     int num;
 
+    public GameObject StartButton;
+
     bool update;
     public TextMeshProUGUI text;
+    
     public TextMeshProUGUI[] playertext = new TextMeshProUGUI[4];
     string Pname;
 
@@ -25,7 +29,6 @@ public class Matching : MonoBehaviour
 
         //AWSConnectorのオブジェクト化
         _AWS = new AWSConnector();
-        _AWS.GetDynamoDB(0);
 
         //SQLite操作用
         DBSrc = DB.GetComponent<SampleDataBase>();  
@@ -35,7 +38,7 @@ public class Matching : MonoBehaviour
         Pname = DBSrc.PlayerName;
 
         //AWSのデータベースに保存されてある名前データの取得
-        StartCoroutine(_AWS.GetDynamoDB(0));
+        StartCoroutine(_AWS.GetDynamoDBPlayer(0));
 
         //テキスト操作用
         text = text.GetComponent<TextMeshProUGUI> ();
@@ -44,13 +47,15 @@ public class Matching : MonoBehaviour
         {
             playertext[i] = playertext[i].GetComponent<TextMeshProUGUI>();
         }
+        
+        StartButton.SetActive(false);
     }
 
 
     public void GetPName()
     {
         text.text = "<size=60%>データ取得中・・・</size>";
-        StartCoroutine(_AWS.GetDynamoDB(1));
+        StartCoroutine(_AWS.GetDynamoDBPlayer(1));
     }
 
 
@@ -64,7 +69,7 @@ public class Matching : MonoBehaviour
         }else{
             Pre = "準備中";
         }
-        playertext[number].text = "Player" + (number+1) + "    " + Pre +  "   " + Pname + "\n";
+        playertext[number].text = "Player" + (number+1) + "    " + Pre +  "   " + _AWS.Playername[number] + "\n";
     }
 
 
@@ -74,7 +79,7 @@ public class Matching : MonoBehaviour
         if(_AWS.Playername[DBSrc.num-1] != Pname){
             num = _AWS.membernum;
             text.text = "<size=60%>プレイヤーのデータ更新中・・・</size>";
-            DBSrc.UpdateDB(Pname, 0 , num);
+            DBSrc.UpdateDB(Pname, "true" , num);
         }
     }
 
@@ -94,9 +99,11 @@ public class Matching : MonoBehaviour
     public void Register()
     {
         if(_AWS.Playername[DBSrc.num-1] != Pname){
+            Debug.Log("Register");
             num++;
             //新規ユーザーの登録
-            StartCoroutine(_AWS.UpdateDynamoDB("P"+ num + "N" , Pname , num, "", true));
+            StartCoroutine(_AWS.UpdatePlayer("P"+ num + "N" , Pname , true));
+            StartCoroutine(_AWS.UpdateState("P"+ num + "N" , "" , "", true));
         }else{
             setReName();
         }
@@ -107,6 +114,17 @@ public class Matching : MonoBehaviour
         for(int i = 0 ; i < 4 ; i++)
         {
             SetPName(i);
+        }
+    }
+
+    private void Update()
+    {
+        if(_AWS.PlayerPre[0] == "true" && _AWS.PlayerPre[0] == "true" && _AWS.PlayerPre[1] == "true" && _AWS.PlayerPre[2] == "true" && _AWS.PlayerPre[3] == "true"){
+            StartButton.SetActive(true);
+        }
+        if(_AWS.Game_State == "true")
+        {
+            SceneManager.LoadScene("Main"); 
         }
     }
 }

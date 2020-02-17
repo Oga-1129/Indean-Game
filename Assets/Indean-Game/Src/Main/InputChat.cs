@@ -38,9 +38,9 @@ public class InputChat : MonoBehaviour
         text = text.GetComponent<TextMeshProUGUI> ();
         DBSrc.SelectDB();
         PlayerName = DBSrc.PlayerName;
-        DBSrc.UpdateDB(PlayerName, 1 , DBSrc.num);
+        DBSrc.UpdateDB(PlayerName, "true" , DBSrc.num);
         _AWS = new AWSConnector();
-        StartCoroutine(_AWS.GetDynamoDB(0));
+        StartCoroutine(_AWS.GetDynamoDBState(0));
         startup_text.text = "準備中・・・";
         for(int i = 0; i < 4; i++)
         {
@@ -50,7 +50,7 @@ public class InputChat : MonoBehaviour
 
     public void SetText()
     {
-        StartCoroutine(_AWS.UpdateDynamoDB("Remarks", inputField.text, 0, PlayerName,false));
+        StartCoroutine(_AWS.UpdateState("Remarks", inputField.text, PlayerName,false));
     }
 
     public void startup()
@@ -78,13 +78,14 @@ public class InputChat : MonoBehaviour
         if(inputField.text.Contains(_AWS.PlayerThema[DBSrc.num-1]))
         {
             text.text += "\n<align=center>！NGワード！</align>";
-            DBSrc.UpdateDB(PlayerName, 0 , DBSrc.num);
+            DBSrc.UpdateDB(PlayerName, "false" , DBSrc.num);
+            StartCoroutine(_AWS.UpdatePlayer("P" + (DBSrc.num-1) + "St", "false",  false));
             Thema = _AWS.PlayerThema[DBSrc.num-1];
         }else{
             Thema = "******";
         }
 
-        if (DBSrc.state == 0){
+        if (DBSrc.state == "false"){
             namecolor = "red";
         }
         Name = "<color=" + namecolor + "><size=150%><margin=0.5em>" + _AWS.talkname + "</size></color>";
@@ -101,7 +102,7 @@ public class InputChat : MonoBehaviour
     }
 
     public void GetStatementID(){
-        StartCoroutine(_AWS.GetDynamoDB(1));
+        StartCoroutine(_AWS.GetDynamoDBState(1));
     }
 
     void Update()

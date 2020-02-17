@@ -13,6 +13,7 @@ public class DecsionQuestion : MonoBehaviour
     int PlayerNum;
     public TMP_InputField thema;
     public TextMeshProUGUI text;
+    public TextMeshProUGUI worning_text;
     public TextMeshProUGUI updatetext;
     // Start is called before the first frame update
     void Start()
@@ -34,8 +35,16 @@ public class DecsionQuestion : MonoBehaviour
     // Update is called once per frame
     public void OnClick()
     {
-        updatetext.text = "テーマの登録中・・・";
-        StartCoroutine(_AWS.UpdateDynamoDB("P" + PlayerNum + "Q", thema.text,  0, "", false));
+
+        worning_text.text = "";
+        string s = thema.text;
+        int length = s.Length;
+        if(length >= 3){
+            updatetext.text = "テーマの登録中・・・";
+            StartCoroutine(_AWS.UpdatePlayer("P" + PlayerNum + "Q", thema.text,false));
+        }else{
+            worning_text.text = "3文字以上で設定してください。";
+        }
     }
 
     void Update()

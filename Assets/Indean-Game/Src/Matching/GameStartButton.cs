@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using Amazon;
 using TMPro;
 
@@ -27,13 +26,8 @@ public class GameStartButton : MonoBehaviour
 
     public void OnClick()
     {
-        SceneManager.LoadScene("Main"); 
-        // if(_AWS.PlayerPre[0] == "true" &&  _AWS.PlayerPre[1] == "true" &&  _AWS.PlayerPre[2] == "true" &&  _AWS.PlayerPre[3] == "true")
-        // {
-            
-        // }else{
-        //     worning_text.text = "メンバーの準備がまだです";
-        // }
+        StartCoroutine(_AWS.UpdateState("GameState", "true", "",false));
+
     }
 
     void Update()

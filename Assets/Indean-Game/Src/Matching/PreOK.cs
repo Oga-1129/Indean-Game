@@ -31,7 +31,7 @@ public class PreOK : MonoBehaviour
         worning_text = worning_text.GetComponent<TextMeshProUGUI>(); 
 
         _matching = matching.GetComponent<Matching>();
-        StartCoroutine(_AWS.GetDynamoDB(1));
+        StartCoroutine(_AWS.GetDynamoDBPlayer(1));
     }
 
     public void OnClick()
@@ -40,15 +40,21 @@ public class PreOK : MonoBehaviour
         if(_AWS.myThema[DBSrc.num-1] != " "){
             if(_AWS.PlayerPre[DBSrc.num-1] == "true")
             {
-                StartCoroutine(_AWS.UpdateDynamoDB("P"+ DBSrc.num + "Pre", "false",0, "", false));
+                StartCoroutine(_AWS.UpdatePlayer("P"+ DBSrc.num + "Pre", "false",false));
                 text.text = "準備完了";
             }else if(_AWS.PlayerPre[DBSrc.num-1] == "false")
             {
-                StartCoroutine(_AWS.UpdateDynamoDB("P"+ DBSrc.num + "Pre", "true",  0, "", false));
+                StartCoroutine(_AWS.UpdatePlayer("P"+ DBSrc.num + "Pre", "true",false));
                 text.text = "やり直し";
             }
         }else{
-            text.text = "テーマが未設定です。";
+            StartCoroutine(worningtext());
         }
+    }
+
+    IEnumerator worningtext(){
+        worning_text.text = "テーマが未設定です。";
+        yield return new WaitForSeconds(2);
+        worning_text.text = "";
     }
 }

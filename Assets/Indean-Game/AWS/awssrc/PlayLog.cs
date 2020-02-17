@@ -1,7 +1,7 @@
 ﻿using System;
 using Amazon.DynamoDBv2.DataModel;
 
-[DynamoDBTable("Indean-Gamedb")]
+[DynamoDBTable("Indean-Game-Player")]
 public class PlayLog
 {
     [DynamoDBHashKey]
@@ -102,37 +102,30 @@ public class PlayLog
 
     #endregion
 
-    //発言内容
+    #region Player State
     [DynamoDBProperty]
-    public string Remarks{
+    public string P1St{
         get;
         set;
     }
 
-    //開始時間
     [DynamoDBProperty]
-    public DateTime OpenRoom{
+    public string P2St{
         get;
         set;
     }
 
-    //発言者
     [DynamoDBProperty]
-    public string StPlayer{
+    public string P3St{
         get;
         set;
     }
 
-    //プレイヤー数
     [DynamoDBProperty]
-    public int PNum{
+    public string P4St{
         get;
         set;
     }
-    //発言ID
-    [DynamoDBProperty]
-    public int StatementID{
-        get;
-        set;
-    }
+    #endregion
+
 }
