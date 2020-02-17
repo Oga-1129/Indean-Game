@@ -15,10 +15,4 @@ public class Main : MonoBehaviour
         //AWSConnectorのオブジェクト化
         _AWS = new AWSConnector();
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }

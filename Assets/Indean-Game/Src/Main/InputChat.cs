@@ -26,7 +26,7 @@ public class InputChat : MonoBehaviour
     string Name;
     string PlayerName;
 
-    int savetalkid;
+    int saveStatementID;
     string namecolor = "black";
     AWSConnector _AWS; 
 
@@ -50,7 +50,7 @@ public class InputChat : MonoBehaviour
 
     public void SetText()
     {
-        StartCoroutine(_AWS.UpdateDynamoDB("Remarks", inputField.text, true, 0, PlayerName));
+        StartCoroutine(_AWS.UpdateDynamoDB("Remarks", inputField.text, 0, PlayerName,false));
     }
 
     public void startup()
@@ -64,7 +64,7 @@ public class InputChat : MonoBehaviour
                 _playername_list[i].text += "\n" + _AWS.Playername[i] + "\n" +　"******";
             }
         }
-        GetTalkID();
+        GetStatementID();
     }
 
     public void InputText(){
@@ -100,15 +100,15 @@ public class InputChat : MonoBehaviour
         inputField.text = "";
     }
 
-    public void GetTalkID(){
+    public void GetStatementID(){
         StartCoroutine(_AWS.GetDynamoDB(1));
     }
 
     void Update()
     {
-        if(_AWS.talkid != savetalkid)
+        if(_AWS.StatementID != saveStatementID)
         {
-            savetalkid = _AWS.talkid;
+            saveStatementID = _AWS.StatementID;
             InputText();
         }
     }

@@ -35,7 +35,7 @@ public class DecsionQuestion : MonoBehaviour
     public void OnClick()
     {
         updatetext.text = "テーマの登録中・・・";
-        StartCoroutine(_AWS.UpdateDynamoDB("P" + PlayerNum + "Q", thema.text, true, 0, ""));
+        StartCoroutine(_AWS.UpdateDynamoDB("P" + PlayerNum + "Q", thema.text,  0, "", false));
     }
 
     void Update()

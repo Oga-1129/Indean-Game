@@ -28,6 +28,7 @@ public class AWSConnector
     public static int iddate = 01;
     public string[] Playername = new string[4];
     public string[] PlayerThema = new string[4];
+    public string[] PlayerPre = new string[4];
     Pass _pass = new Pass();
     Matching _matching;
     InputChat _inputchat;
@@ -36,7 +37,7 @@ public class AWSConnector
     public int roomID;
     public string talkname;
     
-    public int talkid;
+    public int StatementID;
 #endregion
 
 #region constructor
@@ -176,17 +177,15 @@ public class AWSConnector
             P2Q = " ",
             P3Q = " ",
             P4Q = " ",
-            P1Pre = false,
-            P2Pre = false,
-            P3Pre = false,
-            P4Pre = false,
+            P1Pre = "false",
+            P2Pre = "false",
+            P3Pre = "false",
+            P4Pre = "false",
             Remarks = " ",
             OpenRoom = System.DateTime.Now,
             StPlayer = " ",
-            StUpdate = false,
-            UpNum = 0,
             PNum = 0,
-            TalkID = 0
+            StatementID = 0
         };
 
         iddate = roomid;
@@ -245,23 +244,29 @@ public class AWSConnector
             //プレイヤー4の名前の取得
             Playername[3] = (string)mylog.P4N;
 
-            //プレイヤー1のお題の取得
-            PlayerThema[0] = (string)mylog.P1Q;
-
-            //プレイヤー2のお題の取得
-            PlayerThema[1] = (string)mylog.P2Q;
-
-            //プレイヤー3のお題の取得
-            PlayerThema[2] = (string)mylog.P3Q;
-
-            //プレイヤー4のお題の取得
-            PlayerThema[3] = (string)mylog.P4Q;
-
             //トークID取得
-            talkid = mylog.TalkID;
+            StatementID = mylog.StatementID;
 
             //話している人
             talkname = mylog.StPlayer;
+
+            //プレイヤー1のお題の取得
+            PlayerThema[0] = (string)mylog.P4Q;
+
+            //プレイヤー2のお題の取得
+            PlayerThema[1] = (string)mylog.P1Q;
+
+           //プレイヤー3のお題の取得
+            PlayerThema[2] = (string)mylog.P2Q;
+
+            //プレイヤー4のお題の取得
+            PlayerThema[3] = (string)mylog.P3Q;
+
+
+            PlayerPre[0] = (string)mylog.P1Pre;
+            PlayerPre[1] = (string)mylog.P2Pre;
+            PlayerPre[2] = (string)mylog.P3Pre;
+            PlayerPre[3] = (string)mylog.P4Pre;
 
 
             //問題あり
@@ -286,18 +291,20 @@ public class AWSConnector
         }, null);
 
 
-        yield return new WaitForSeconds(3);
+
         if(SceneManager.GetActiveScene().name == "Matching")
         {
+            yield return new WaitForSeconds(5);
             _matching = GameObject.Find("Matching").GetComponent<Matching>();
             _matching.GetPName();
         }else if(SceneManager.GetActiveScene().name == "Main")
         {
+            yield return 0;
             _inputchat = GameObject.Find("InputChat").GetComponent<InputChat>();
             if(cheack == 0){
                 _inputchat.startup();
             }else if(cheack == 1){
-                _inputchat.GetTalkID();
+                _inputchat.GetStatementID();
             }
         }
     }
@@ -310,7 +317,7 @@ public class AWSConnector
     // /// <summary>
     //string username,string question, bool Pre, string talk, string stplayer, bool stupdate
 
-    public IEnumerator UpdateDynamoDB(string updatename, string state, bool hoge, int num, string talkname)
+    public IEnumerator UpdateDynamoDB(string updatename, string state, int num, string talkname, bool flag)
     {
         //PlayLogの初期化
         PlayLog mylog = null;
@@ -343,19 +350,14 @@ public class AWSConnector
                     case "P3Q": mylog.P3Q = state; break;
                     case "P4Q": mylog.P4Q = state; break;
 
-                    case "P1Pre": mylog.P1Pre = hoge; break;
-                    case "P2Pre": mylog.P2Pre = hoge; break;
-                    case "P3Pre": mylog.P3Pre = hoge; break;
-                    case "P4Pre": mylog.P4Pre = hoge; break;
+                    case "P1Pre": mylog.P1Pre = state; break;
+                    case "P2Pre": mylog.P2Pre = state; break;
+                    case "P3Pre": mylog.P3Pre = state; break;
+                    case "P4Pre": mylog.P4Pre = state; break;
 
                     case "Remarks" : mylog.Remarks = state; 
-                                    mylog.TalkID = Random.Range(0, 999 + 1);
-                                    mylog.StPlayer = talkname; break;
-
-                    case "StUpdate": mylog.StUpdate = hoge; break;
-
-                    case "UpNum"   : mylog.UpNum = num; break;
-                    
+                                    mylog.StatementID = Random.Range(0, 999 + 1);
+                                    mylog.StPlayer = talkname; break;                    
                 }
                 membernum = mylog.PNum;
 
@@ -368,14 +370,20 @@ public class AWSConnector
                         if(SceneManager.GetActiveScene().name == "Matching")
                         {
                             _matching = GameObject.Find("Matching").GetComponent<Matching>();
-                            //SQLiteのアップデート
-                            _matching.updatesqldb();
+                            if(flag){
+                                //SQLiteのアップデート
+                                _matching.updatesqldb();
+                            }
                             //AWSに登録したユーザー名の取得
                             _matching.GetPName();
+                            PlayerPre[0] = (string)mylog.P1Pre;
+                            PlayerPre[1] = (string)mylog.P2Pre;
+                            PlayerPre[2] = (string)mylog.P3Pre;
+                            PlayerPre[3] = (string)mylog.P4Pre;
                         }else if(SceneManager.GetActiveScene().name == "Main"){
                             talkname = mylog.StPlayer;
                             talk = mylog.Remarks;
-                        }else if(SceneManager.GetActiveScene().name == "Thema"){
+                        }else if(SceneManager.GetActiveScene().name == "Theme"){
                             SceneManager.LoadScene("Matching"); 
                         }
                     }
@@ -384,7 +392,8 @@ public class AWSConnector
                 Debug.Log(result.Exception);
             }
         });
-        yield return  0;
+
+        yield return 0;                   
     }
     #endregion
 

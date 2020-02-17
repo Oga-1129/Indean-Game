@@ -74,28 +74,28 @@ public class PlayLog
     #region Player Preparation
     //プレイヤー1の準備確認
     [DynamoDBProperty]
-    public bool P1Pre{
+    public string P1Pre{
         get;
         set;
     }
 
     //プレイヤー2の準備確認
     [DynamoDBProperty]
-    public bool P2Pre{
+    public string P2Pre{
         get;
         set;
     }
 
     //プレイヤー3の準備確認
     [DynamoDBProperty]
-    public bool P3Pre{
+    public string P3Pre{
         get;
         set;
     }
 
     //プレイヤー1の準備確認
     [DynamoDBProperty]
-    public bool P4Pre{
+    public string P4Pre{
         get;
         set;
     }
@@ -123,29 +123,15 @@ public class PlayLog
         set;
     }
 
-    //発言の更新
-    [DynamoDBProperty]
-    public bool StUpdate{
-        get;
-        set;
-    }
-
-    //現在更新が終了したプレイヤー数
-    [DynamoDBProperty]
-    public int UpNum{
-        get;
-        set;
-    }
-
     //プレイヤー数
     [DynamoDBProperty]
     public int PNum{
         get;
         set;
     }
-
+    //発言ID
     [DynamoDBProperty]
-    public int TalkID{
+    public int StatementID{
         get;
         set;
     }

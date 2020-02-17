@@ -49,7 +49,7 @@ public class Matching : MonoBehaviour
 
     public void GetPName()
     {
-        //text.text = "<size=60%>データ取得中・・・</size>";
+        text.text = "<size=60%>データ取得中・・・</size>";
         StartCoroutine(_AWS.GetDynamoDB(1));
     }
 
@@ -57,7 +57,14 @@ public class Matching : MonoBehaviour
     //取得したプレイヤー名の表示
     public void SetPName(int number)
     {
-        playertext[number].text = "Player" + (number+1) + "    " + Pname + "\n";
+        string Pre;
+        if(_AWS.PlayerPre[number] == "true")
+        {
+            Pre = "  OK ";
+        }else{
+            Pre = "準備中";
+        }
+        playertext[number].text = "Player" + (number+1) + "    " + Pre +  "   " + Pname + "\n";
     }
 
 
@@ -89,7 +96,7 @@ public class Matching : MonoBehaviour
         if(_AWS.Playername[DBSrc.num-1] != Pname){
             num++;
             //新規ユーザーの登録
-            StartCoroutine(_AWS.UpdateDynamoDB("P"+ num + "N" , Pname , true , num, ""));
+            StartCoroutine(_AWS.UpdateDynamoDB("P"+ num + "N" , Pname , num, "", true));
         }else{
             setReName();
         }
