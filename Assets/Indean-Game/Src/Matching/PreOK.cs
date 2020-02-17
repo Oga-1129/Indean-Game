@@ -36,14 +36,19 @@ public class PreOK : MonoBehaviour
 
     public void OnClick()
     {
-        if(_AWS.PlayerPre[DBSrc.num-1] == "true")
-        {
-            StartCoroutine(_AWS.UpdateDynamoDB("P"+ DBSrc.num + "Pre", "false",0, "", false));
-            text.text = "準備完了";
-        }else if(_AWS.PlayerPre[DBSrc.num-1] == "false")
-        {
-            StartCoroutine(_AWS.UpdateDynamoDB("P"+ DBSrc.num + "Pre", "true",  0, "", false));
-            text.text = "やり直し";
+        Debug.Log(_AWS.myThema[DBSrc.num-1]);
+        if(_AWS.myThema[DBSrc.num-1] != " "){
+            if(_AWS.PlayerPre[DBSrc.num-1] == "true")
+            {
+                StartCoroutine(_AWS.UpdateDynamoDB("P"+ DBSrc.num + "Pre", "false",0, "", false));
+                text.text = "準備完了";
+            }else if(_AWS.PlayerPre[DBSrc.num-1] == "false")
+            {
+                StartCoroutine(_AWS.UpdateDynamoDB("P"+ DBSrc.num + "Pre", "true",  0, "", false));
+                text.text = "やり直し";
+            }
+        }else{
+            text.text = "テーマが未設定です。";
         }
     }
 }

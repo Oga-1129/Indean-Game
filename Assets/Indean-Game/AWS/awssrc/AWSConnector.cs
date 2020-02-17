@@ -28,6 +28,7 @@ public class AWSConnector
     public static int iddate = 01;
     public string[] Playername = new string[4];
     public string[] PlayerThema = new string[4];
+    public string[] myThema = new string[4];
     public string[] PlayerPre = new string[4];
     Pass _pass = new Pass();
     Matching _matching;
@@ -262,6 +263,17 @@ public class AWSConnector
             //プレイヤー4のお題の取得
             PlayerThema[3] = (string)mylog.P3Q;
 
+                        //プレイヤー1のお題の取得
+            myThema[0] = (string)mylog.P1Q;
+
+            //プレイヤー2のお題の取得
+            myThema[1] = (string)mylog.P2Q;
+
+           //プレイヤー3のお題の取得
+            myThema[2] = (string)mylog.P3Q;
+
+            //プレイヤー4のお題の取得
+            myThema[3] = (string)mylog.P4Q;
 
             PlayerPre[0] = (string)mylog.P1Pre;
             PlayerPre[1] = (string)mylog.P2Pre;
