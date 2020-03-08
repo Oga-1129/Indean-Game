@@ -1,7 +1,7 @@
 ﻿using System;
 using Amazon.DynamoDBv2.DataModel;
 
-[DynamoDBTable("Indean-Game-State")]
+[DynamoDBTable("Indean-State")]
 public class GameLog
 {
     [DynamoDBHashKey]

@@ -23,11 +23,16 @@ public class GameStartButton : MonoBehaviour
         _AWS = new AWSConnector();
         worning_text = worning_text.GetComponent<TextMeshProUGUI>(); 
     }
-
-    public void OnClick()
+    public void OnClick(){
+        StartCoroutine(MoveRoom());
+    }
+    public IEnumerator MoveRoom()
     {
+        Debug.Log(_AWS.Game_State);
         StartCoroutine(_AWS.UpdateState("GameState", "true", "",false));
-
+        yield return new WaitForSeconds(2);
+        StartCoroutine(_AWS.GetDynamoDBState(1));
+        Debug.Log(_AWS.Game_State);
     }
 
     void Update()

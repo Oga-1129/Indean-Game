@@ -56,6 +56,7 @@ public class Matching : MonoBehaviour
     {
         text.text = "<size=60%>データ取得中・・・</size>";
         StartCoroutine(_AWS.GetDynamoDBPlayer(1));
+        StartCoroutine(_AWS.GetDynamoDBState(1));
     }
 
 
@@ -119,6 +120,7 @@ public class Matching : MonoBehaviour
 
     private void Update()
     {
+        Debug.Log(_AWS.Game_State);
         if(_AWS.PlayerPre[0] == "true" && _AWS.PlayerPre[0] == "true" && _AWS.PlayerPre[1] == "true" && _AWS.PlayerPre[2] == "true" && _AWS.PlayerPre[3] == "true"){
             StartButton.SetActive(true);
         }
