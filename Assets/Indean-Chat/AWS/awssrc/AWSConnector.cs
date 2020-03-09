@@ -287,18 +287,18 @@ public class AWSConnector
                 _matching.GetPName();
             }
         }
+        else if(SceneManager.GetActiveScene().name == "Main")
+        {
+            yield return new WaitForSeconds(2);
+            _inputchat = GameObject.Find("InputChat").GetComponent<InputChat>();
+            if(cheack == 0){
+                _inputchat.startup();
+            }else if(cheack == 1){
+                _inputchat.GetStatementID();
+            }
+        }
     }
     #endregion
-        // else if(SceneManager.GetActiveScene().name == "Main")
-        // {
-        //     yield return 0;
-        //     _inputchat = GameObject.Find("InputChat").GetComponent<InputChat>();
-        //     if(cheack == 0){
-        //         _inputchat.startup();
-        //     }else if(cheack == 1){
-        //         _inputchat.GetStatementID();
-        //     }
-        // }
 
 
 
@@ -307,11 +307,6 @@ public class AWSConnector
     {
         //GameLogの初期化
         GameLog gamelog =null;
-
-
-        //検索
-        string query = "SELECT Indean-GameDB WHERE RoomID = " + 0;
-
         
         context.LoadAsync<GameLog>(iddate,
                     (AmazonDynamoDBResult<GameLog> result) =>                       
@@ -351,11 +346,11 @@ public class AWSConnector
             _matching = GameObject.Find("Matching").GetComponent<Matching>();
         }else if(SceneManager.GetActiveScene().name == "Main")
         {
-            yield return 0;
-            _inputchat = GameObject.Find("InputChat").GetComponent<InputChat>();
-            if(cheack == 0){
-                _inputchat.startup();
-            }else if(cheack == 1){
+            // yield return 0;
+            // _inputchat = GameObject.Find("InputChat").GetComponent<InputChat>();
+            // if(cheack == 0){
+            //     _inputchat.startup();
+            if(cheack == 1){
                 _inputchat.GetStatementID();
             }
         }
@@ -381,6 +376,7 @@ public class AWSConnector
     {
         Debug.Log(iddate + " : " + updatename + " : " + state);
         PlayLog Plog = null;
+        
         //リクエスト作成
         context.LoadAsync<PlayLog>(iddate,(result)=>
         {

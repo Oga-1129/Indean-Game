@@ -40,6 +40,7 @@ public class InputChat : MonoBehaviour
         PlayerName = DBSrc.PlayerName;
         DBSrc.UpdateDB(PlayerName, "true" , DBSrc.num);
         _AWS = new AWSConnector();
+        StartCoroutine(_AWS.GetDynamoDBPlayer(0));
         StartCoroutine(_AWS.GetDynamoDBState(0));
         startup_text.text = "準備中・・・";
         for(int i = 0; i < 4; i++)
@@ -112,5 +113,6 @@ public class InputChat : MonoBehaviour
             saveStatementID = _AWS.StatementID;
             InputText();
         }
+
     }
 }
