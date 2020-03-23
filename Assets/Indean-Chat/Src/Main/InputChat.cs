@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using TMPro;
 using System;
 using Amazon;
+using WebSocketSharp;
 
 
 public class InputChat : MonoBehaviour
@@ -15,7 +16,7 @@ public class InputChat : MonoBehaviour
 
     //オブジェクトと結びつける
     public TMP_InputField inputField;
-    public TextMeshProUGUI text;
+    public TextMeshProUGUI ChatText;
     public TextMeshProUGUI startup_text;
     public TextMeshProUGUI[] _playername_list = new TextMeshProUGUI[4];
 
@@ -30,18 +31,33 @@ public class InputChat : MonoBehaviour
     string namecolor = "black";
     AWSConnector _AWS; 
 
+    public WebSocket ws;
+    public Button sendButton;
+
     void Start () {
+        //接続処理。接続先サーバと、ポート番号を指定する
+        ws = new WebSocket("ws://localhost:3000/");
+        ws.Connect();
+
+        //送信ボタンが押されたときに実行する処理「SendText」を登録する
+        sendButton.onClick.AddListener(SendText);
+        //サーバからメッセージを受信したときに実行する処理「RecvText」を登録する
+        ws.OnMessage += (sender, e) => RecvText(e.Data);
+        //サーバとの接続が切れたときに実行する処理「RecvClose」を登録する
+        ws.OnClose += (sender, e) => RecvClose();
+
+
         AWSConfigs.HttpClient = AWSConfigs.HttpClientOption.UnityWebRequest;
         //Componentを扱えるようにする
         DBSrc = DB.GetComponent<SampleDataBase>();   
-        inputField = inputField.GetComponent<TMP_InputField> ();
-        text = text.GetComponent<TextMeshProUGUI> ();
+        // inputField = inputField.GetComponent<TMP_InputField> ();
+        // ChatText = text.GetComponent<TextMeshProUGUI> ();
         DBSrc.SelectDB();
         PlayerName = DBSrc.PlayerName;
         DBSrc.UpdateDB(PlayerName, "true" , DBSrc.num);
         _AWS = new AWSConnector();
         StartCoroutine(_AWS.GetDynamoDBPlayer(0));
-        StartCoroutine(_AWS.GetDynamoDBState(0));
+        StartCoroutine(_AWS.GetDynamoDBState());
         startup_text.text = "準備中・・・";
         for(int i = 0; i < 4; i++)
         {
@@ -49,10 +65,50 @@ public class InputChat : MonoBehaviour
         }
     }
 
-    public void SetText()
+    //サーバーへ、メッセージを送信する
+    public void SendText()
     {
-        StartCoroutine(_AWS.UpdateState("Remarks", inputField.text, PlayerName,false));
+        ws.Send(inputField.text);
     }
+
+    //サーバーから受け取ったメッセージを、ChatTextに表示する
+    public void RecvText(string text)
+    {
+        DateTime dt = DateTime.Now;
+        HH = dt.Hour;
+        MM = dt.Minute;
+        SS = dt.Second;
+        string[] testtext = new string[2];
+        string Thema;
+        if(inputField.text.Contains(_AWS.PlayerThema[DBSrc.num-1]))
+        {
+            ChatText.text += "\n<align=center>！NGワード！</align>";
+            DBSrc.UpdateDB(PlayerName, "false" , DBSrc.num);
+            StartCoroutine(_AWS.UpdatePlayer("P" + (DBSrc.num-1) + "St", "false",  false));
+            Thema = _AWS.PlayerThema[DBSrc.num-1];
+        }else{
+            Thema = "******";
+        }
+        if (DBSrc.state == "false"){
+            namecolor = "red";
+        }
+        Name = "<color=" + namecolor + "><size=150%><margin=0.5em>" + _AWS.talkname + "</size></color>";
+        testtext[0] = "<color=" + namecolor + "><indent=25%>" + text + "</indent></color>";
+        testtext[1] = "<color=red><size=70%><margin=1em>" + string.Format( "{0:D2}:{1:D2}:{2:D2}", HH , MM , SS) + "</size></color>";
+        ChatText.text += (text + "\n");
+        inputField.text = "";
+    }
+
+    //サーバーとの接続が切れた時のメッセージを、ChatTextに表示する
+    public void RecvClose()
+    {
+        ChatText.text = ("Close.");
+    }
+
+    // public void SetText()
+    // {
+    //     StartCoroutine(_AWS.UpdateState("Remarks", inputField.text, PlayerName,false));
+    // }
 
     public void startup()
     {
@@ -68,42 +124,8 @@ public class InputChat : MonoBehaviour
         GetStatementID();
     }
 
-    public void InputText(){
-        DateTime dt = DateTime.Now;
-        HH = dt.Hour;
-        MM = dt.Minute;
-        SS = dt.Second;
-        string[] testtext = new string[2];
-        string Thema;
-
-        if(inputField.text.Contains(_AWS.PlayerThema[DBSrc.num-1]))
-        {
-            text.text += "\n<align=center>！NGワード！</align>";
-            DBSrc.UpdateDB(PlayerName, "false" , DBSrc.num);
-            StartCoroutine(_AWS.UpdatePlayer("P" + (DBSrc.num-1) + "St", "false",  false));
-            Thema = _AWS.PlayerThema[DBSrc.num-1];
-        }else{
-            Thema = "******";
-        }
-
-        if (DBSrc.state == "false"){
-            namecolor = "red";
-        }
-        Name = "<color=" + namecolor + "><size=150%><margin=0.5em>" + _AWS.talkname + "</size></color>";
-
-        testtext[0] = "<color=" + namecolor + "><indent=25%>" + _AWS.talk + "</indent></color>";
-
-        testtext[1] = "<color=red><size=70%><margin=1em>" + string.Format( "{0:D2}:{1:D2}:{2:D2}", HH , MM , SS) + "</size></color>";
-        
-        _playername_list[DBSrc.num-1].text = "Player" + DBSrc.num + "\n" + _AWS.Playername[DBSrc.num-1] + "\n" +　Thema;
-
-        //テキストにinputFieldの内容を反映
-        text.text += "<size=150%>\n</size>" + Name  + testtext[0] + "\n" +  testtext[1];
-        inputField.text = "";
-    }
-
     public void GetStatementID(){
-        StartCoroutine(_AWS.GetDynamoDBState(1));
+        StartCoroutine(_AWS.GetDynamoDBState());
     }
 
     void Update()
@@ -111,8 +133,6 @@ public class InputChat : MonoBehaviour
         if(_AWS.StatementID != saveStatementID)
         {
             saveStatementID = _AWS.StatementID;
-            InputText();
         }
-
     }
 }

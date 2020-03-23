@@ -96,6 +96,7 @@ LightmapSettings:
     m_PVRFilteringAtrousPositionSigmaAO: 1
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
+    m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 0}
   m_UseShadowmask: 1
 --- !u!196 &4
@@ -386,7 +387,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 2133996082
+    rgba: 2150773298
   m_fontColor: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 0.5}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -2466,13 +2467,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   DB: {fileID: 1872560127}
   inputField: {fileID: 1513758531}
-  text: {fileID: 658943150}
+  ChatText: {fileID: 658943150}
   startup_text: {fileID: 1137140828}
   _playername_list:
   - {fileID: 1772031029}
   - {fileID: 1169285817}
   - {fileID: 1822382073}
   - {fileID: 859749913}
+  sendButton: {fileID: 109239181}
 --- !u!1 &1772031027
 GameObject:
   m_ObjectHideFlags: 0

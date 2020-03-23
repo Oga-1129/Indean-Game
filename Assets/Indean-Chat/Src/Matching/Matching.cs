@@ -37,9 +37,6 @@ public class Matching : MonoBehaviour
         //SQLiteに保存してあるユーザー名
         Pname = DBSrc.PlayerName;
 
-        //AWSのデータベースに保存されてある名前データの取得
-        StartCoroutine(_AWS.GetDynamoDBPlayer(0));
-
         //テキスト操作用
         text = text.GetComponent<TextMeshProUGUI> ();
         text.text = "<size=60%>データ登録中・・・</size>";
@@ -49,6 +46,7 @@ public class Matching : MonoBehaviour
         }
         
         StartButton.SetActive(false);
+        StartCoroutine(_AWS.GetDynamoDBPlayer(0));
     }
 
 
@@ -56,13 +54,14 @@ public class Matching : MonoBehaviour
     {
         text.text = "<size=60%>データ取得中・・・</size>";
         StartCoroutine(_AWS.GetDynamoDBPlayer(1));
-        StartCoroutine(_AWS.GetDynamoDBState(1));
+        StartCoroutine(_AWS.GetDynamoDBState());
     }
 
 
     //取得したプレイヤー名の表示
     public void SetPName(int number)
     {
+        Debug.Log("Name");
         string Pre;
         if(_AWS.PlayerPre[number] == "true")
         {
@@ -84,18 +83,6 @@ public class Matching : MonoBehaviour
         }
     }
 
-    //既に登録されてあるユーザーの表示
-    public void setReName()
-    {
-        text.text = "";
-        for(int i = 0; i < 4; i ++){
-            Pname = _AWS.Playername[i];
-            if(Pname != null){
-                SetPName(i);
-            }
-        }
-    }
-
 
     public void Register()
     {
@@ -103,10 +90,17 @@ public class Matching : MonoBehaviour
             Debug.Log("Register");
             num++;
             //新規ユーザーの登録
-            StartCoroutine(_AWS.UpdatePlayer("P"+ num + "N" , Pname , true));
             StartCoroutine(_AWS.UpdateState("P"+ num + "N" , "" , "", true));
+            StartCoroutine(_AWS.UpdatePlayer("P"+ num + "N" , Pname , true));
+            
         }else{
-            setReName();
+            //名前表示
+            for(int i = 0; i < 4; i ++){
+                if(_AWS.Playername[i] != null)
+                {
+                    SetPName(i);
+                }
+            }
         }
     }
 

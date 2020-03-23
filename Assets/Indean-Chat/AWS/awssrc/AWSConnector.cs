@@ -246,44 +246,42 @@ public class AWSConnector
             //取ってきたデータをmylog(PlayLog)に保存
             Plog = result.Result as PlayLog;
             
-            //プレイヤー１の名前の取得
             Playername[0] = (string)Plog.P1N;
-            //プレイヤー2の名前の取得
             Playername[1] = (string)Plog.P2N;
-            //プレイヤー3の名前の取得
             Playername[2] = (string)Plog.P3N;         
-            //プレイヤー4の名前の取得
             Playername[3] = (string)Plog.P4N;
-            //プレイヤー1のお題の取得
-            PlayerThema[0] = (string)Plog.P4Q;
-            //プレイヤー2のお題の取得
-            PlayerThema[1] = (string)Plog.P1Q;
-           //プレイヤー3のお題の取得
-            PlayerThema[2] = (string)Plog.P2Q;
-            //プレイヤー4のお題の取得
-            PlayerThema[3] = (string)Plog.P3Q;
-            //プレイヤー1のお題の取得
             myThema[0] = (string)Plog.P1Q;
-            //プレイヤー2のお題の取得
             myThema[1] = (string)Plog.P2Q;
-           //プレイヤー3のお題の取得
             myThema[2] = (string)Plog.P3Q;
-            //プレイヤー4のお題の取得
             myThema[3] = (string)Plog.P4Q;
             PlayerPre[0] = (string)Plog.P1Pre;
             PlayerPre[1] = (string)Plog.P2Pre;
             PlayerPre[2] = (string)Plog.P3Pre;
             PlayerPre[3] = (string)Plog.P4Pre;
         },null);
+
+        PlayerThema[0] = myThema[3];
+        PlayerThema[1] = myThema[0];
+        PlayerThema[2] = myThema[1];
+        PlayerThema[3] = myThema[2];
+        Debug.Log("In");
         if(SceneManager.GetActiveScene().name == "Matching")
         {
-            yield return new WaitForSeconds(2);
             _matching = GameObject.Find("Matching").GetComponent<Matching>();
-            if(cheack == 0){
+            yield return new WaitForSeconds(2);
+            if(cheack == 0)
+            {
+
+                Debug.Log("in");
                 _matching.Register();
-            }else if(cheack == 1){
+            }else{
                 //名前表示
-                _matching.setReName();
+                for(int i = 0; i < 4; i ++){
+                    if(Playername[i] != null)
+                    {
+                        _matching.SetPName(i);
+                    }
+                }
                 _matching.GetPName();
             }
         }
@@ -302,8 +300,17 @@ public class AWSConnector
 
 
 
+
+
+
+
+
+
+
+
+
     #region Get DynamoDB State
-    public IEnumerator GetDynamoDBState(int cheack)
+    public IEnumerator GetDynamoDBState()
     {
         //GameLogの初期化
         GameLog gamelog =null;
@@ -327,18 +334,7 @@ public class AWSConnector
                 Debug.Log("LoadAsync error" +result.Exception.Message + "\n");
                 Debug.LogException(result.Exception);
                 return;
-            }else{              
-                if(SceneManager.GetActiveScene().name == "Matching"){
-                    _matching = GameObject.Find("Matching").GetComponent<Matching>();
-                    if(cheack == 0){
-                        _matching.Register();
-                    }else if(cheack == 1){
-                        //名前表示
-                        _matching.setReName();
-                    }
-                }
             }
-
         }, null);
         if(SceneManager.GetActiveScene().name == "Matching")
         {
@@ -346,13 +342,9 @@ public class AWSConnector
             _matching = GameObject.Find("Matching").GetComponent<Matching>();
         }else if(SceneManager.GetActiveScene().name == "Main")
         {
-            // yield return 0;
-            // _inputchat = GameObject.Find("InputChat").GetComponent<InputChat>();
-            // if(cheack == 0){
-            //     _inputchat.startup();
-            if(cheack == 1){
-                _inputchat.GetStatementID();
-            }
+            yield return 0;
+            _inputchat = GameObject.Find("InputChat").GetComponent<InputChat>();
+            _inputchat.GetStatementID();
         }
     }
     #endregion
@@ -409,14 +401,11 @@ public class AWSConnector
                 #region Save
                 context.SaveAsync<PlayLog>(Plog,(res)=>
                 {
-                    Debug.Log("point");
                     //問題なし
                     if(res.Exception == null)
                     {
-                        Debug.Log("DB updated\n");
                         if(SceneManager.GetActiveScene().name == "Matching")
                         {
-                            Debug.Log("in");
                             _matching = GameObject.Find("Matching").GetComponent<Matching>();
                             PlayerPre[0] = (string)Plog.P1Pre;
                             PlayerPre[1] = (string)Plog.P2Pre;
@@ -471,7 +460,7 @@ public class AWSConnector
             //問題なし
             if(result.Exception == null )
             {
-                //アップデートする対象をmylog(PlayLog)に決める
+                //アップデートする対象をGlog(GameLog)に決める
                 Glog = result.Result as GameLog;
 
                 // Update few properties.

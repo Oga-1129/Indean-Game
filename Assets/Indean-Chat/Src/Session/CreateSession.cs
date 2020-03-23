@@ -25,7 +25,7 @@ public class CreateSession : MonoBehaviour
     {
         Int32.TryParse(inputid.text, out roomid);
         text.text = "部屋を作成しています・・・";
-        StartCoroutine(_AWS.GetDynamoDBPlayer(1));
+        // StartCoroutine(_AWS.GetDynamoDBPlayer(1));
         StartCoroutine(_AWS.CreateDynamoDB(roomid));
     }
 }

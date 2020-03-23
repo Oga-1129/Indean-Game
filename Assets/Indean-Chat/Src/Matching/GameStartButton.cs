@@ -31,7 +31,7 @@ public class GameStartButton : MonoBehaviour
         Debug.Log(_AWS.Game_State);
         StartCoroutine(_AWS.UpdateState("GameState", "true", "",false));
         yield return new WaitForSeconds(2);
-        StartCoroutine(_AWS.GetDynamoDBState(1));
+        StartCoroutine(_AWS.GetDynamoDBState());
         Debug.Log(_AWS.Game_State);
     }
 
